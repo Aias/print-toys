@@ -1,43 +1,45 @@
-import {
-  ThermalPrinter,
-  PrinterTypes,
-  CharacterSet,
-} from "node-thermal-printer";
+import EscPosEncoder from "esc-pos-encoder";
+import { addDefaultQRCode, padAndCut, sendToPrinter } from "./helpers";
+
+const encoder = new EscPosEncoder({
+  width: 42,
+  wordWrap: true,
+});
 
 async function main() {
-  const printer = new ThermalPrinter({
-    type: PrinterTypes.EPSON,
-    interface: "tcp://192.168.1.32:9100",
-    width: 42,
-    // lineCharacter: "─",
-    characterSet: CharacterSet.PC437_USA,
-  });
+  // Initialize the encoder
+  let result = encoder
+    .initialize()
+    .line("Hello, world!")
+    .line(
+      "This is a very long line that I am going to expect to wrap to another, and I want to see where it breaks. We can add a few sentences to see if it does it correctly. Will it wrap right at a particular character? Or will it wrap at a word? We'll experiment a bit to see."
+    )
+    .rule()
+    .size("small")
+    .line("Here's some really tiny text.")
+    .size("normal")
+    .align("center");
 
-  try {
-    await printer.isPrinterConnected();
-    console.log("Printer connected");
+  // Add QR code
+  result = addDefaultQRCode(
+    result,
+    "https://media.istockphoto.com/id/853493518/photo/blueberry-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=bRUIuOyJx74vcgZcf2BwjfhnGxaEJ3N6VNjsLn8eXtw%3D"
+  );
 
-    printer.setTypeFontA();
-    printer.setTextNormal();
+  // Add padding and cut
+  result = padAndCut(result);
 
-    printer.print("hi bb.");
-    printer.newLine();
-    printer.newLine();
-    printer.alignCenter();
-    printer.printQR(
-      "https://media.istockphoto.com/id/853493518/photo/blueberry-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=bRUIuOyJx74vcgZcf2BwjfhnGxaEJ3N6VNjsLn8eXtw%3D",
-      {
-        cellSize: 6,
-      }
-    );
-    printer.newLine();
-    printer.cut();
+  // Encode the result
+  const encodedResult = result.encode();
 
-    await printer.execute();
-    console.log("Print job sent to printer");
-  } catch (error) {
-    console.error("Error connecting to printer:", error);
-  }
+  // Send the encoded result to the printer
+  sendToPrinter(encodedResult)
+    .then(() => {
+      console.log("Print job successful.");
+    })
+    .catch((error) => {
+      console.error("Error connecting to printer:", error);
+    });
 }
 
 main();
