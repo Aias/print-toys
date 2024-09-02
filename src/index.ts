@@ -1,45 +1,34 @@
-import EscPosEncoder from "esc-pos-encoder";
-import { addDefaultQRCode, padAndCut, sendToPrinter } from "./helpers";
+import readline from "readline";
+import { encoder, padAndCut, sendToPrinter } from "./helpers";
 
-const encoder = new EscPosEncoder({
-  width: 42,
-  wordWrap: true,
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
 });
 
-async function main() {
-  // Initialize the encoder
-  let result = encoder
-    .initialize()
-    .line("Hello, world!")
-    .line(
-      "This is a very long line that I am going to expect to wrap to another, and I want to see where it breaks. We can add a few sentences to see if it does it correctly. Will it wrap right at a particular character? Or will it wrap at a word? We'll experiment a bit to see."
-    )
-    .rule()
-    .size("small")
-    .line("Here's some really tiny text.")
-    .size("normal")
-    .align("center");
+console.log(
+  "Type your input and press Enter to print. Paper will be cut on exit."
+);
 
-  // Add QR code
-  result = addDefaultQRCode(
-    result,
-    "https://media.istockphoto.com/id/853493518/photo/blueberry-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=bRUIuOyJx74vcgZcf2BwjfhnGxaEJ3N6VNjsLn8eXtw%3D"
-  );
+rl.on("line", async (input) => {
+  encoder.initialize().line(input);
+  const encodedResult = encoder.encode();
+  await sendToPrinter(encodedResult).catch((error) => {
+    console.error("Error while printing line:", error);
+  });
+});
 
-  // Add padding and cut
+rl.on("close", async () => {
+  let result = encoder.initialize();
   result = padAndCut(result);
-
-  // Encode the result
   const encodedResult = result.encode();
-
-  // Send the encoded result to the printer
-  sendToPrinter(encodedResult)
+  await sendToPrinter(encodedResult)
     .then(() => {
-      console.log("Print job successful.");
+      console.log("Paper cut.");
     })
     .catch((error) => {
       console.error("Error connecting to printer:", error);
     });
-}
-
-main();
+  console.log("Exiting...");
+  process.exit(0);
+});

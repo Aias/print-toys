@@ -1,6 +1,16 @@
 import EscPosEncoder from "esc-pos-encoder";
 import * as net from "net";
-import { QR_CODE_DEFAULTS, PRINTER_IP, PRINTER_PORT } from "./constants";
+import {
+  QR_CODE_DEFAULTS,
+  PRINTER_IP,
+  PRINTER_PORT,
+  LINE_WIDTH,
+} from "./constants";
+
+export const encoder = new EscPosEncoder({
+  width: LINE_WIDTH,
+  wordWrap: true,
+}).codepage("auto");
 
 export function addDefaultQRCode(
   encoder: EscPosEncoder,
@@ -16,7 +26,7 @@ export function addDefaultQRCode(
 
 export function padAndCut(
   encoder: EscPosEncoder,
-  lines: number = 5
+  lines: number = 7
 ): EscPosEncoder {
   for (let i = 0; i < lines; i++) {
     encoder = encoder.newline();
@@ -24,13 +34,13 @@ export function padAndCut(
   return encoder.cut();
 }
 
-export async function sendToPrinter(data: Uint8Array) {
+export async function sendToPrinter(data: Uint8Array, debug: boolean = false) {
   return new Promise<void>((resolve, reject) => {
     const client = new net.Socket();
-    console.log("Connecting to printer...");
+    if (debug) console.log("Connecting to printer...");
 
     client.connect(PRINTER_PORT, PRINTER_IP, () => {
-      console.log("Connected to printer.");
+      if (debug) console.log("Connected to printer.");
       client.write(data);
       client.end();
       resolve();
