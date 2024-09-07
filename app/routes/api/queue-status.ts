@@ -1,9 +1,10 @@
-import type { APIRoute } from "astro";
+import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const GET: APIRoute = async () => {
+export const loader: LoaderFunction = async () => {
   try {
     const currentConfig = await prisma.configuration.findFirst({
       where: { validTo: null },
@@ -12,23 +13,14 @@ export const GET: APIRoute = async () => {
 
     const queueEnabled = currentConfig?.queueEnabled ?? false;
 
-    return new Response(JSON.stringify({ queueEnabled }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return json({ queueEnabled });
   } catch (error) {
     console.error("Error getting queue state:", error);
-    return new Response(
-      JSON.stringify({ error: "Failed to get queue state." }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return json({ error: "Failed to get queue state." }, { status: 500 });
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   try {
     const url = new URL(request.url);
     const enableQueue = url.searchParams.get("enable") === "true";
@@ -52,18 +44,9 @@ export const POST: APIRoute = async ({ request }) => {
       },
     });
 
-    return new Response(JSON.stringify({ queueEnabled: enableQueue }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return json({ queueEnabled: enableQueue });
   } catch (error) {
     console.error("Error setting queue state:", error);
-    return new Response(
-      JSON.stringify({ error: "Failed to set queue state." }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return json({ error: "Failed to set queue state." }, { status: 500 });
   }
 };

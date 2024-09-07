@@ -12,9 +12,11 @@
 
 .DS_Store
 node_modules
+/.cache
 
 # build output
 dist/
+/build
 
 # generated types
 .astro/

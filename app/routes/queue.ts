@@ -1,7 +1,8 @@
-import type { APIRoute } from "astro";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { PrismaClient } from "@prisma/client";
-import { commandsToPrintDataXML, padAndCut } from "@/lib/helpers";
-import { encoder } from "@/lib/encoder";
+import { commandsToPrintDataXML, padAndCut } from "app/lib/helpers";
+import { encoder } from "app/lib/encoder";
 
 const prisma = new PrismaClient();
 const cutCommand = padAndCut(encoder.initialize()).encode();
@@ -50,7 +51,7 @@ async function getQueueEnabled(): Promise<boolean> {
   return currentConfig?.queueEnabled ?? false;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   const bodyText = await request.text();
   const params = new URLSearchParams(bodyText);
   const decodedParams: Record<string, string> = {};
@@ -79,6 +80,6 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/xml" },
     });
   } else {
-    return new Response("Queue endpoint is disabled.", { status: 403 });
+    return json({ error: "Queue endpoint is disabled." }, { status: 403 });
   }
 };
