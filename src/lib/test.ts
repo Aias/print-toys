@@ -1,4 +1,5 @@
-import { encoder, addDefaultQRCode, padAndCut, sendToPrinter } from "./helpers";
+import { encoder } from "./encoder";
+import { addDefaultQRCode, padAndCut, sendToPrinter } from "./helpers";
 
 async function test() {
   // Initialize the encoder

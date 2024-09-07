@@ -1,5 +1,6 @@
 import readline from "readline";
-import { encoder, padAndCut, sendToPrinter } from "./helpers";
+import { encoder } from "./encoder";
+import { padAndCut, sendToPrinter } from "./helpers";
 
 const rl = readline.createInterface({
   input: process.stdin,

@@ -1,16 +1,6 @@
 import EscPosEncoder from "esc-pos-encoder";
 import * as net from "net";
-import {
-  QR_CODE_DEFAULTS,
-  PRINTER_IP,
-  PRINTER_PORT,
-  LINE_WIDTH,
-} from "./constants";
-
-export const encoder = new EscPosEncoder({
-  width: LINE_WIDTH,
-  wordWrap: true,
-}).codepage("auto");
+import { QR_CODE_DEFAULTS, PRINTER_IP, PRINTER_PORT } from "./constants";
 
 export function addDefaultQRCode(
   encoder: EscPosEncoder,
