@@ -1,11 +1,9 @@
 import type { APIRoute } from "astro";
-import { encoder } from "../lib/encoder";
-
-export const GET: APIRoute = async () => {
-  return new Response("Queue endpoint is working");
-};
+import { encoder } from "@/lib/encoder";
+import { commandsToPrintDataXML } from "@/lib/helpers";
 
 export const POST: APIRoute = async ({ request }) => {
+  const ENABLED = false;
   // Log the request
   const bodyText = await request.text();
 
@@ -20,14 +18,14 @@ export const POST: APIRoute = async ({ request }) => {
     decodedParams[key] = decodeURIComponent(value);
   }
 
+  const { ResponseFile: responseFile, ...mainBody } = decodedParams;
   // Pretty print the decoded parameters
   console.log("Request received:");
-  console.log(JSON.stringify(decodedParams, null, 2));
+  console.log(JSON.stringify(mainBody));
 
-  // If you want to specifically log the ResponseFile content:
-  if (decodedParams.ResponseFile) {
+  if (responseFile) {
     console.log("Decoded ResponseFile:");
-    console.log(decodedParams.ResponseFile);
+    console.log(responseFile);
   }
 
   const printJobId = crypto.randomUUID().substring(0, 30);
@@ -47,34 +45,19 @@ export const POST: APIRoute = async ({ request }) => {
     .cut()
     .encode();
 
-  // Convert Uint8Array to Hex string
-  const hexContent = Array.from(content)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
-    .toUpperCase();
+  const xmlResponse = commandsToPrintDataXML(content, printJobId);
 
-  // Create a test print XML response
-  const xmlResponse = `<?xml version="1.0" encoding="UTF-8"?>
-    <PrintRequestInfo Version="3.00">
-      <ePOSPrint>
-        <Parameter>
-          <devid>local_printer</devid>
-          <timeout>10000</timeout>
-          <printjobid>${printJobId}</printjobid>
-        </Parameter>
-        <PrintData>
-          <epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
-            <command>${hexContent}</command>
-          </epos-print>
-        </PrintData>
-      </ePOSPrint>
-    </PrintRequestInfo>`;
-
-  // Return the XML response
-  return new Response(xmlResponse, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/xml; charset=utf-8",
-    },
-  });
+  if (ENABLED) {
+    // Return the XML response
+    return new Response(xmlResponse, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/xml; charset=utf-8",
+      },
+    });
+  } else {
+    return new Response("Queue endpoint is disabled.", {
+      status: 403,
+    });
+  }
 };
