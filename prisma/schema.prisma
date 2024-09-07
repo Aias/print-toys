@@ -14,4 +14,12 @@ model PrintJob {
   escPosCommands Bytes
   printed        Boolean  @default(false)
   submitted      DateTime @default(now())
+  cutAfterPrint  Boolean  @default(true)
+}
+
+model Configuration {
+  id            Int       @id @default(autoincrement())
+  queueEnabled  Boolean
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
 }
