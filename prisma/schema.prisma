@@ -1,0 +1,17 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model PrintJob {
+  jobId          String   @id @default(uuid())
+  escPosCommands Bytes
+  printed        Boolean  @default(false)
+  submitted      DateTime @default(now())
+}
