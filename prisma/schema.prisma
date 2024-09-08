@@ -23,3 +23,17 @@ model Configuration {
   validFrom     DateTime  @default(now())
   validTo       DateTime?
 }
+
+model PrintJobResult {
+  id                            Int      @id @default(autoincrement())
+  timestamp                     DateTime
+  serverDirectPrintSuccess      Boolean
+  serverDirectPrintErrorSummary String?
+  serverDirectPrintErrorDetail  String?
+  printerDeviceId               String?
+  printerJobId                  String?
+  printerSuccess                Boolean
+  printerCode                   String?
+  printerStatus                 String?
+  fullXml                       String?
+}

@@ -1,5 +1,4 @@
 import type { ActionFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { PrismaClient } from "@prisma/client";
 import { commandsToPrintDataXML, padAndCut } from "app/lib/helpers";
 import { encoder } from "app/lib/encoder";
@@ -19,6 +18,10 @@ async function processQueue(markAsPrinted: boolean = true) {
     where: { printed: false },
     orderBy: { submitted: "asc" },
   });
+
+  if (jobs.length === 0) {
+    return null;
+  }
 
   let combinedCommands = new Uint8Array();
 
@@ -56,10 +59,16 @@ async function getQueueEnabled() {
   return currentConfig?.queueEnabled ?? false;
 }
 
-const connectionTypes = {
-  get: "GetRequest",
-  set: "SetResponse",
-};
+const GET_REQUEST = "GetRequest" as const;
+const SET_RESPONSE = "SetResponse" as const;
+
+const nullResponse = new Response(null, {
+  status: 200,
+  headers: {
+    "Content-Type": "text/xml; charset=utf-8",
+    "Content-Length": "0",
+  },
+});
 
 export const action: ActionFunction = async ({ request }) => {
   const bodyText = await request.text();
@@ -72,30 +81,39 @@ export const action: ActionFunction = async ({ request }) => {
 
   const { ResponseFile: responseFile, ...mainBody } = params;
 
-  if (mainBody.ConnectionType == connectionTypes.get) {
+  if (mainBody.ConnectionType == GET_REQUEST) {
     console.log("Request received:");
     console.log(JSON.stringify(mainBody));
     const queueEnabled = await getQueueEnabled();
 
     if (queueEnabled) {
       const xmlResponse = await processQueue();
-      return new Response(xmlResponse, {
-        status: 200,
-        headers: { "Content-Type": "application/xml" },
-      });
+      if (xmlResponse) {
+        // There are print jobs available
+        return new Response(xmlResponse, {
+          status: 200,
+          headers: { "Content-Type": "text/xml; charset=utf-8" },
+        });
+      } else {
+        // No print jobs available
+        return nullResponse;
+      }
     } else {
-      return json({ error: "Queue endpoint is disabled." }, { status: 403 });
+      // Queue is disabled
+      return nullResponse;
     }
-  } else if (mainBody.ConnectionType == connectionTypes.set) {
+  } else if (mainBody.ConnectionType == SET_RESPONSE) {
     console.log("Response received:");
     console.log(JSON.stringify(mainBody));
 
     if (responseFile) {
-      console.log("Decoded ResponseFile:");
       console.log(responseFile);
+      // TODO: Log responseFile to database
     }
-    return json({ success: true }, { status: 200 });
+    return nullResponse;
   } else {
-    return json({ error: "Invalid ConnectionType." }, { status: 500 });
+    // Invalid ConnectionType
+    console.error("Invalid ConnectionType:", mainBody.ConnectionType);
+    return nullResponse;
   }
 };
