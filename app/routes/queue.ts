@@ -14,7 +14,7 @@ async function markJobAsPrinted(jobId: string) {
   });
 }
 
-async function processQueue() {
+async function processQueue(markAsPrinted: boolean = true) {
   const jobs = await prisma.printJob.findMany({
     where: { printed: false },
     orderBy: { submitted: "asc" },
@@ -24,13 +24,18 @@ async function processQueue() {
 
   for (const job of jobs) {
     try {
+      // Convert Buffer to Uint8Array
+      const jobCommands = new Uint8Array(job.escPosCommands);
+
       combinedCommands = new Uint8Array([
         ...combinedCommands,
-        ...job.escPosCommands,
+        ...jobCommands,
         ...(job.cutAfterPrint ? cutCommand : new Uint8Array()),
       ]);
-      await markJobAsPrinted(job.jobId);
-      console.log(`Job ${job.jobId} processed successfully.`);
+      if (markAsPrinted) {
+        await markJobAsPrinted(job.jobId);
+        console.log(`Job ${job.jobId} processed successfully.`);
+      }
     } catch (error) {
       console.error(`Error processing job ${job.jobId}:`, error);
     }
@@ -39,7 +44,7 @@ async function processQueue() {
   return commandsToPrintDataXML(combinedCommands);
 }
 
-async function getQueueEnabled(): Promise<boolean> {
+async function getQueueEnabled() {
   const currentConfig = await prisma.configuration.findFirst({
     where: {
       validTo: null,
@@ -51,35 +56,46 @@ async function getQueueEnabled(): Promise<boolean> {
   return currentConfig?.queueEnabled ?? false;
 }
 
+const connectionTypes = {
+  get: "GetRequest",
+  set: "SetResponse",
+};
+
 export const action: ActionFunction = async ({ request }) => {
   const bodyText = await request.text();
-  const params = new URLSearchParams(bodyText);
-  const decodedParams: Record<string, string> = {};
+  const rawParams = new URLSearchParams(bodyText);
+  const params: Record<string, string> = {};
 
-  for (const [key, value] of params.entries()) {
-    decodedParams[key] = decodeURIComponent(value);
+  for (const [key, value] of rawParams.entries()) {
+    params[key] = decodeURIComponent(value);
   }
 
-  const { ResponseFile: responseFile, ...mainBody } = decodedParams;
-  console.log("Request received:");
-  console.log(JSON.stringify(mainBody));
+  const { ResponseFile: responseFile, ...mainBody } = params;
 
-  if (responseFile) {
-    console.log("Decoded ResponseFile:");
-    console.log(responseFile);
-  }
+  if (mainBody.ConnectionType == connectionTypes.get) {
+    console.log("Request received:");
+    console.log(JSON.stringify(mainBody));
+    const queueEnabled = await getQueueEnabled();
 
-  const queueEnabled = await getQueueEnabled();
+    if (queueEnabled) {
+      const xmlResponse = await processQueue();
+      return new Response(xmlResponse, {
+        status: 200,
+        headers: { "Content-Type": "application/xml" },
+      });
+    } else {
+      return json({ error: "Queue endpoint is disabled." }, { status: 403 });
+    }
+  } else if (mainBody.ConnectionType == connectionTypes.set) {
+    console.log("Response received:");
+    console.log(JSON.stringify(mainBody));
 
-  if (queueEnabled) {
-    const xmlResponse = await processQueue();
-    console.log("XML Response:");
-    console.log(xmlResponse);
-    return new Response(xmlResponse, {
-      status: 200,
-      headers: { "Content-Type": "application/xml" },
-    });
+    if (responseFile) {
+      console.log("Decoded ResponseFile:");
+      console.log(responseFile);
+    }
+    return json({ success: true }, { status: 200 });
   } else {
-    return json({ error: "Queue endpoint is disabled." }, { status: 403 });
+    return json({ error: "Invalid ConnectionType." }, { status: 500 });
   }
 };
