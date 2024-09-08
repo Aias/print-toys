@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Form, useSubmit, useActionData } from "@remix-run/react";
 import { json, type ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
@@ -42,9 +42,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Typewriter() {
   const [line, setLine] = useState("");
-  const [printedLines, setPrintedLines] = useState<string[]>([]);
+  const [printedSections, setPrintedSections] = useState<string[][]>([[]]);
   const submit = useSubmit();
   const actionData = useActionData<typeof action>();
+  const lastActionRef = useRef<ActionData | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,8 +72,28 @@ export default function Typewriter() {
   }, [handleCut]);
 
   useEffect(() => {
-    if (actionData?.success && "line" in actionData) {
-      setPrintedLines((prev) => [...prev, actionData.line]);
+    if (actionData?.success && actionData !== lastActionRef.current) {
+      if ("line" in actionData) {
+        setPrintedSections((prev) => {
+          const newSections = [...prev];
+          const lastSection = newSections[newSections.length - 1];
+          if (!lastSection.includes(actionData.line)) {
+            newSections[newSections.length - 1] = [
+              ...lastSection,
+              actionData.line,
+            ];
+          }
+          return newSections;
+        });
+      } else if ("cut" in actionData) {
+        setPrintedSections((prev) => {
+          if (prev[prev.length - 1].length > 0) {
+            return [...prev, []];
+          }
+          return prev;
+        });
+      }
+      lastActionRef.current = actionData;
     }
   }, [actionData]);
 
@@ -98,16 +119,18 @@ export default function Typewriter() {
       <Button onClick={handleCut} className="w-full mt-4">
         Cut Page (Cmd+Enter)
       </Button>
-      {printedLines.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-2">Printed Lines:</h2>
-          <ul className="list-disc pl-5">
-            {printedLines.map((printedLine, index) => (
-              <li key={index}>{printedLine}</li>
-            ))}
-          </ul>
+      {printedSections.map((section, sectionIndex) => (
+        <div key={sectionIndex} className="mt-8">
+          {sectionIndex > 0 && <hr className="my-4 border-gray-300" />}
+          {section.length > 0 && (
+            <div>
+              <pre className="font-mono whitespace-pre-wrap">
+                {section.join("\n")}
+              </pre>
+            </div>
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }
