@@ -6,7 +6,10 @@ import {
   ScrollRestoration,
   Link,
 } from "@remix-run/react";
+import { routes } from "~/lib/routes";
 import "./tailwind.css";
+
+const navItems = [{ title: "Home", route: "/" }, ...routes];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,21 +24,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <header className="bg-gray-800 text-white p-4">
           <nav>
             <ul className="flex space-x-4">
-              <li>
-                <Link to="/" className="hover:text-gray-300">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/admin" className="hover:text-gray-300">
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <Link to="/typewriter" className="hover:text-gray-300">
-                  Typewriter
-                </Link>
-              </li>
+              {navItems.map((item) => (
+                <li key={item.route}>
+                  <Link to={item.route} className="hover:text-gray-300">
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </header>

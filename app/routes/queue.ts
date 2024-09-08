@@ -63,8 +63,6 @@ export const action: ActionFunction = async ({ request }) => {
   const { ResponseFile: responseFile, ...mainBody } = params;
 
   if (mainBody.ConnectionType == GET_REQUEST) {
-    console.log("Request received:");
-    console.log(JSON.stringify(mainBody));
     const queueEnabled = await getQueueEnabled();
 
     if (queueEnabled) {
