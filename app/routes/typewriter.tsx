@@ -3,10 +3,8 @@ import { Form, useSubmit, useActionData } from "@remix-run/react";
 import { json, type ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { PrismaClient } from "@prisma/client";
 import { encoder } from "~/lib/encoder";
-
-const prisma = new PrismaClient();
+import { createPrintJob } from "~/api/requests";
 
 type ActionData =
   | { success: true; line: string }
@@ -20,20 +18,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (action === "print" && typeof line === "string") {
     const escPosCommands = encoder.initialize().line(line).encode();
-    await prisma.printJob.create({
-      data: {
-        escPosCommands: Buffer.from(escPosCommands),
-        cutAfterPrint: false,
-      },
-    });
+    await createPrintJob(Buffer.from(escPosCommands), false);
     return json<ActionData>({ success: true, line });
   } else if (action === "cut") {
-    await prisma.printJob.create({
-      data: {
-        escPosCommands: Buffer.from([]),
-        cutAfterPrint: true,
-      },
-    });
+    await createPrintJob(Buffer.from([]), true);
     return json<ActionData>({ success: true, cut: true });
   }
 

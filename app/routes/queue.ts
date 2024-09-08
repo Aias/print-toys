@@ -1,23 +1,16 @@
 import type { ActionFunction } from "@remix-run/node";
-import { PrismaClient } from "@prisma/client";
 import { commandsToPrintDataXML, padAndCut } from "app/lib/helpers";
 import { encoder } from "app/lib/encoder";
+import {
+  getQueueEnabled,
+  getQueuedJobs,
+  markJobAsPrinted,
+} from "app/api/requests";
 
-const prisma = new PrismaClient();
 const cutCommand = padAndCut(encoder.initialize()).encode();
 
-async function markJobAsPrinted(jobId: string) {
-  await prisma.printJob.update({
-    where: { jobId },
-    data: { printed: true },
-  });
-}
-
 async function processQueue(markAsPrinted: boolean = true) {
-  const jobs = await prisma.printJob.findMany({
-    where: { printed: false },
-    orderBy: { submitted: "asc" },
-  });
+  const jobs = await getQueuedJobs();
 
   if (jobs.length === 0) {
     return null;
@@ -45,18 +38,6 @@ async function processQueue(markAsPrinted: boolean = true) {
   }
 
   return commandsToPrintDataXML(combinedCommands);
-}
-
-async function getQueueEnabled() {
-  const currentConfig = await prisma.configuration.findFirst({
-    where: {
-      validTo: null,
-    },
-    orderBy: {
-      validFrom: "desc",
-    },
-  });
-  return currentConfig?.queueEnabled ?? false;
 }
 
 const GET_REQUEST = "GetRequest" as const;

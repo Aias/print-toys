@@ -7,9 +7,7 @@ import {
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { getQueueEnabled, setQueueEnabled } from "~/api/requests";
 
 interface QueueStatusResponse {
   queueEnabled: boolean;
@@ -17,12 +15,7 @@ interface QueueStatusResponse {
 
 export const loader: LoaderFunction = async () => {
   try {
-    const currentConfig = await prisma.configuration.findFirst({
-      where: { validTo: null },
-      orderBy: { validFrom: "desc" },
-    });
-
-    const queueEnabled = currentConfig?.queueEnabled ?? false;
+    const queueEnabled = await getQueueEnabled();
 
     return json({ queueEnabled });
   } catch (error) {
@@ -36,24 +29,7 @@ export const action: ActionFunction = async ({ request }) => {
     const formData = await request.formData();
     const enableQueue = formData.get("enable") === "true";
 
-    const currentConfig = await prisma.configuration.findFirst({
-      where: { validTo: null },
-      orderBy: { validFrom: "desc" },
-    });
-
-    if (currentConfig) {
-      await prisma.configuration.update({
-        where: { id: currentConfig.id },
-        data: { validTo: new Date() },
-      });
-    }
-
-    await prisma.configuration.create({
-      data: {
-        queueEnabled: enableQueue,
-        validFrom: new Date(),
-      },
-    });
+    await setQueueEnabled(enableQueue);
 
     return json({ queueEnabled: enableQueue });
   } catch (error) {
