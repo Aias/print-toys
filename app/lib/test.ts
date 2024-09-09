@@ -1,5 +1,6 @@
 import { encoder } from "./encoder";
 import { addDefaultQRCode, padAndCut } from "./helpers";
+
 // Initialize the encoder
 let testMessage = encoder.initialize();
 

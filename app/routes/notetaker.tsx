@@ -1,48 +1,18 @@
 import { useState } from "react";
-import { Form, useSubmit, useActionData } from "@remix-run/react";
-import { json, type ActionFunctionArgs } from "@remix-run/node";
+import {
+  Form,
+  useSubmit,
+  useActionData,
+  SubmitOptions,
+} from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
+import { mdExampleText } from "~/lib/markdown";
+import { action as printMarkdownAction } from "./actions.print-markdown";
 
-type ActionData = { success: boolean; message: string };
+export const action = printMarkdownAction;
 
-const testMarkdown = `# Test Markdown
-
-This is a **bold** test with some *italic* text.
-This should render as a new line.
-And this another line.
-But no newlines between elements should be printed.
-
-## Subheading
-
-- List item 1
-- List item 2
-
-[A link](https://example.com)
-
----
-
-> A blockquote
-
-\`\`\`
-Some code
-\`\`\`
-`;
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const markdownText = await request.text();
-
-  const response = await fetch("/actions/print-markdown", {
-    method: "POST",
-    body: markdownText,
-    headers: {
-      "Content-Type": "text/plain",
-    },
-  });
-
-  const result = await response.json();
-  return json<ActionData>(result);
-};
+const submitOptions: SubmitOptions = { method: "post", encType: "text/plain" };
 
 export default function Notetaker() {
   const [markdownText, setMarkdownText] = useState("");
@@ -51,11 +21,11 @@ export default function Notetaker() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submit(markdownText, { method: "post", encType: "text/plain" });
+    submit(markdownText, submitOptions);
   };
 
   const handleTestPrint = () => {
-    submit(testMarkdown, { method: "post", encType: "text/plain" });
+    submit(mdExampleText, submitOptions);
   };
 
   return (

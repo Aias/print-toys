@@ -1,6 +1,33 @@
 import { encoder } from "./encoder";
 import { JSDOM } from "jsdom";
 
+const commonReplacements = [
+  {
+    search: /[""]/g,
+    replace: '"',
+  },
+  {
+    search: /['']/g,
+    replace: "'",
+  },
+  {
+    search: /[–—]/g,
+    replace: "-",
+  },
+  {
+    search: /\n/g,
+    replace: "",
+  },
+  {
+    search: /\r/g,
+    replace: "",
+  },
+  {
+    search: /\s+/g,
+    replace: " ",
+  },
+];
+
 export function htmlToEscPos(html: string): Uint8Array {
   encoder.initialize();
   const dom = new JSDOM(html);
@@ -8,22 +35,43 @@ export function htmlToEscPos(html: string): Uint8Array {
 
   function processNode(node: Node) {
     if (node.nodeType === dom.window.Node.TEXT_NODE) {
-      const textContent = node.textContent || "";
-      const visibleWhitespace = textContent.replace(/\s/g, (match) => {
-        switch (match) {
-          // Strip extra newlines from text.
-          case "\n":
-            return "";
-          case "\r":
-            return "";
-          default:
-            return match;
-        }
+      let textContent = node.textContent || "";
+
+      // Apply common replacements
+      commonReplacements.forEach(({ search, replace }) => {
+        textContent = textContent.replace(search, replace);
       });
-      encoder.text(visibleWhitespace);
+
+      encoder.text(textContent);
     } else if (node.nodeType === dom.window.Node.ELEMENT_NODE) {
       const element = node as Element;
       switch (element.tagName.toLowerCase()) {
+        case "h1":
+          encoder.bold(true).height(2).width(2);
+          element.childNodes.forEach(processNode);
+          encoder.bold(false).height(1).width(1);
+          encoder.newline();
+          break;
+        case "h2":
+          encoder.bold(true);
+          encoder.rule({ style: "double" });
+          encoder.newline();
+          encoder.text(element.textContent?.toUpperCase() || "");
+          encoder.bold(false);
+          encoder.newline();
+          break;
+        case "h3":
+        case "h4":
+        case "h5":
+        case "h6":
+          encoder.bold(true).align("center").invert(true);
+          encoder.newline();
+          encoder.text(" ");
+          element.childNodes.forEach(processNode);
+          encoder.text(" ");
+          encoder.newline();
+          encoder.bold(false).align("left").invert(false);
+          break;
         case "b":
         case "strong":
           encoder.bold(true);
@@ -32,9 +80,11 @@ export function htmlToEscPos(html: string): Uint8Array {
           break;
         case "i":
         case "em":
-          encoder.italic(true);
+          // encoder.italic(true)
+          encoder.bold(true); // Italics not supported, so using bold for emphasis.
           element.childNodes.forEach(processNode);
-          encoder.italic(false);
+          // encoder.italic(false);
+          encoder.bold(false);
           break;
         case "u":
           encoder.underline(true);
@@ -47,49 +97,36 @@ export function htmlToEscPos(html: string): Uint8Array {
           encoder.text(` [${element.getAttribute("href") || ""}]`);
           encoder.underline(false);
           break;
-        case "h1":
-          encoder.bold(true).height(2).width(2);
-          element.childNodes.forEach(processNode);
-          encoder.bold(false).height(1).width(1);
-          encoder.newline().newline();
-          break;
-        case "h2":
-        case "h3":
-        case "h4":
-        case "h5":
-        case "h6":
-          encoder.bold(true);
-          encoder.text(element.textContent?.toUpperCase() || "");
-          encoder.bold(false);
-          encoder.newline();
-          break;
-        case "p":
-          element.childNodes.forEach(processNode);
-          encoder.newline().newline();
-          break;
-        case "ul":
-        case "ol":
+        case "li":
+          encoder.text("- ");
           element.childNodes.forEach(processNode);
           encoder.newline();
           break;
         case "br":
           encoder.newline();
           break;
-        case "li":
-          encoder.text("- ");
-          element.childNodes.forEach(processNode);
-          encoder.newline();
-          break;
         case "hr":
+          encoder.newline();
           encoder.rule({ style: "single" });
           break;
         case "img":
           console.warn("Image processing is not fully implemented");
           break;
         case "blockquote":
-          encoder.invert(true);
+          encoder.align("right").size("small");
           element.childNodes.forEach(processNode);
-          encoder.invert(false);
+          encoder.align("left").size("normal");
+          break;
+        case "p":
+          encoder.newline();
+          element.childNodes.forEach(processNode);
+          encoder.newline();
+          break;
+        case "ul":
+        case "ol":
+          encoder.newline();
+          element.childNodes.forEach(processNode);
+          encoder.newline();
           break;
         case "div":
         case "span":
