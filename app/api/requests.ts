@@ -1,8 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaD1 } from "@prisma/adapter-d1";
 
-const prisma = new PrismaClient();
+const getPrismaClient = (env: Env) => {
+  const adapter = new PrismaD1(env.DB);
+  return new PrismaClient({ adapter });
+};
 
-export async function getCurrentConfiguration() {
+export async function getCurrentConfiguration(env: Env) {
+  const prisma = getPrismaClient(env);
   const currentConfig = await prisma.configuration.findFirst({
     where: {
       validTo: null,
@@ -14,13 +19,14 @@ export async function getCurrentConfiguration() {
   return currentConfig;
 }
 
-export async function getQueueEnabled() {
-  const currentConfig = await getCurrentConfiguration();
+export async function getQueueEnabled(env: Env) {
+  const currentConfig = await getCurrentConfiguration(env);
   return currentConfig?.queueEnabled ?? false;
 }
 
-export async function setQueueEnabled(enabled: boolean) {
-  const currentConfig = await getCurrentConfiguration();
+export async function setQueueEnabled(env: Env, enabled: boolean) {
+  const currentConfig = await getCurrentConfiguration(env);
+  const prisma = getPrismaClient(env);
   if (currentConfig) {
     await prisma.configuration.update({
       where: { id: currentConfig.id },
@@ -35,7 +41,8 @@ export async function setQueueEnabled(enabled: boolean) {
   });
 }
 
-export async function getQueuedJobs() {
+export async function getQueuedJobs(env: Env) {
+  const prisma = getPrismaClient(env);
   const jobs = await prisma.printJob.findMany({
     where: {
       printed: false,
@@ -47,7 +54,8 @@ export async function getQueuedJobs() {
   return jobs;
 }
 
-export async function markJobAsPrinted(jobId: string) {
+export async function markJobAsPrinted(env: Env, jobId: string) {
+  const prisma = getPrismaClient(env);
   await prisma.printJob.update({
     where: { jobId },
     data: { printed: true },
@@ -55,9 +63,11 @@ export async function markJobAsPrinted(jobId: string) {
 }
 
 export async function createPrintJob(
+  env: Env,
   escPosCommands: Buffer,
   cutAfterPrint?: boolean
 ) {
+  const prisma = getPrismaClient(env);
   await prisma.printJob.create({
     data: {
       escPosCommands,
@@ -66,17 +76,21 @@ export async function createPrintJob(
   });
 }
 
-export async function savePrinterResponse(response: {
-  serverDirectPrintSuccess: boolean;
-  serverDirectPrintErrorSummary?: string;
-  serverDirectPrintErrorDetail?: string;
-  printerDeviceId?: string;
-  printerJobId?: string;
-  printerSuccess: boolean;
-  printerCode?: string;
-  printerStatus?: string;
-  fullXml: string; // Add this line
-}) {
+export async function savePrinterResponse(
+  env: Env,
+  response: {
+    serverDirectPrintSuccess: boolean;
+    serverDirectPrintErrorSummary?: string;
+    serverDirectPrintErrorDetail?: string;
+    printerDeviceId?: string;
+    printerJobId?: string;
+    printerSuccess: boolean;
+    printerCode?: string;
+    printerStatus?: string;
+    fullXml: string; // Add this line
+  }
+) {
+  const prisma = getPrismaClient(env);
   await prisma.printJobResult.create({
     data: response,
   });

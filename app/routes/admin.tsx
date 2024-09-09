@@ -13,9 +13,9 @@ interface QueueStatusResponse {
   queueEnabled: boolean;
 }
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ context }) => {
   try {
-    const queueEnabled = await getQueueEnabled();
+    const queueEnabled = await getQueueEnabled(context.cloudflare.env);
 
     return json({ queueEnabled });
   } catch (error) {
@@ -24,12 +24,12 @@ export const loader: LoaderFunction = async () => {
   }
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, context }) => {
   try {
     const formData = await request.formData();
     const enableQueue = formData.get("enable") === "true";
 
-    await setQueueEnabled(enableQueue);
+    await setQueueEnabled(context.cloudflare.env, enableQueue);
 
     return json({ queueEnabled: enableQueue });
   } catch (error) {
@@ -39,7 +39,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Admin() {
-  const loaderData = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<QueueStatusResponse>();
   const [queueEnabled, setQueueEnabled] = useState(loaderData.queueEnabled);
   const fetcher = useFetcher<QueueStatusResponse>();
 

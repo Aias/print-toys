@@ -14,8 +14,8 @@ import {
 
 const cutCommand = padAndCut(encoder.initialize()).encode();
 
-async function processQueue(markAsPrinted: boolean = true) {
-  const jobs = await getQueuedJobs();
+async function processQueue(env: Env, markAsPrinted: boolean = true) {
+  const jobs = await getQueuedJobs(env);
 
   if (jobs.length === 0) {
     return null;
@@ -34,7 +34,7 @@ async function processQueue(markAsPrinted: boolean = true) {
         ...(job.cutAfterPrint ? cutCommand : new Uint8Array()),
       ]);
       if (markAsPrinted) {
-        await markJobAsPrinted(job.jobId);
+        await markJobAsPrinted(env, job.jobId);
         console.log(`Job ${job.jobId} processed successfully.`);
       }
     } catch (error) {
@@ -56,7 +56,7 @@ const nullResponse = new Response(null, {
   },
 });
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, context }) => {
   const bodyText = await request.text();
   const rawParams = new URLSearchParams(bodyText);
   const params: Record<string, string> = {};
@@ -68,10 +68,10 @@ export const action: ActionFunction = async ({ request }) => {
   const { ResponseFile: responseFile, ...mainBody } = params;
 
   if (mainBody.ConnectionType == GET_REQUEST) {
-    const queueEnabled = await getQueueEnabled();
+    const queueEnabled = await getQueueEnabled(context.cloudflare.env);
 
     if (queueEnabled) {
-      const xmlResponse = await processQueue();
+      const xmlResponse = await processQueue(context.cloudflare.env);
       if (xmlResponse) {
         // There are print jobs available
         return new Response(xmlResponse, {
@@ -92,7 +92,7 @@ export const action: ActionFunction = async ({ request }) => {
     if (responseFile) {
       try {
         const parsedResponse = await parsePrinterResponse(responseFile);
-        await savePrinterResponse(parsedResponse);
+        await savePrinterResponse(context.cloudflare.env, parsedResponse);
         console.log("Response saved successfully.");
       } catch (error) {
         console.error("Error processing printer response:", error);
@@ -105,3 +105,5 @@ export const action: ActionFunction = async ({ request }) => {
     return nullResponse;
   }
 };
+
+export default action;

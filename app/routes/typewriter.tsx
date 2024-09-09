@@ -11,17 +11,18 @@ type ActionData =
   | { success: true; cut: true }
   | { success: false };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const env = context.cloudflare.env;
   const formData = await request.formData();
   const action = formData.get("action");
   const line = formData.get("line");
 
   if (action === "print" && typeof line === "string") {
     const escPosCommands = encoder.initialize().line(line).encode();
-    await createPrintJob(Buffer.from(escPosCommands), false);
+    await createPrintJob(env, Buffer.from(escPosCommands), false);
     return json<ActionData>({ success: true, line });
   } else if (action === "cut") {
-    await createPrintJob(Buffer.from([]), true);
+    await createPrintJob(env, Buffer.from([]), true);
     return json<ActionData>({ success: true, cut: true });
   }
 
