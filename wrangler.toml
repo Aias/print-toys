@@ -2,7 +2,7 @@
 name = "print-toys"
 compatibility_date = "2024-09-03"
 pages_build_output_dir = "./build/client"
-compatibility_flags = [ "nodejs_compat_v2" ]
+compatibility_flags = [ "nodejs_compat" ]
 
 [[d1_databases]]
 binding = "DB"
