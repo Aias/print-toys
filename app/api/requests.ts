@@ -65,3 +65,19 @@ export async function createPrintJob(
     },
   });
 }
+
+export async function savePrinterResponse(response: {
+  serverDirectPrintSuccess: boolean;
+  serverDirectPrintErrorSummary?: string;
+  serverDirectPrintErrorDetail?: string;
+  printerDeviceId?: string;
+  printerJobId?: string;
+  printerSuccess: boolean;
+  printerCode?: string;
+  printerStatus?: string;
+  fullXml: string; // Add this line
+}) {
+  await prisma.printJobResult.create({
+    data: response,
+  });
+}

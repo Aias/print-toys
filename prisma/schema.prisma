@@ -26,8 +26,9 @@ model Configuration {
 
 model PrintJobResult {
   id                            Int      @id @default(autoincrement())
-  timestamp                     DateTime
+  timestamp                     DateTime @default(now())
   serverDirectPrintSuccess      Boolean
+  fullXml                       String
   serverDirectPrintErrorSummary String?
   serverDirectPrintErrorDetail  String?
   printerDeviceId               String?
@@ -35,5 +36,4 @@ model PrintJobResult {
   printerSuccess                Boolean
   printerCode                   String?
   printerStatus                 String?
-  fullXml                       String?
 }

@@ -3,9 +3,6 @@ import { Form, useSubmit, useActionData } from "@remix-run/react";
 import { json, type ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { markdown } from "~/lib/markdown";
-import { htmlToEscPos } from "~/lib/htmlToEscPos";
-import { createPrintJob } from "~/api/requests";
 
 type ActionData = { success: boolean; message: string };
 
@@ -33,29 +30,18 @@ Some code
 `;
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const markdownText = formData.get("markdownText");
+  const markdownText = await request.text();
 
-  if (typeof markdownText === "string") {
-    try {
-      const html = await markdown.parse(markdownText);
-      const escPosCommands = htmlToEscPos(html);
+  const response = await fetch("/actions/print-markdown", {
+    method: "POST",
+    body: markdownText,
+    headers: {
+      "Content-Type": "text/plain",
+    },
+  });
 
-      await createPrintJob(Buffer.from(escPosCommands));
-      return json<ActionData>({
-        success: true,
-        message: "Note printed successfully",
-      });
-    } catch (error) {
-      console.error("Error in action:", error);
-      return json<ActionData>({
-        success: false,
-        message: `Failed to print note: ${(error as Error).message}`,
-      });
-    }
-  }
-
-  return json<ActionData>({ success: false, message: "Failed to print note" });
+  const result = await response.json();
+  return json<ActionData>(result);
 };
 
 export default function Notetaker() {
@@ -65,13 +51,11 @@ export default function Notetaker() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submit(e.currentTarget, { method: "post" });
+    submit(markdownText, { method: "post", encType: "text/plain" });
   };
 
   const handleTestPrint = () => {
-    const formData = new FormData();
-    formData.append("markdownText", testMarkdown);
-    submit(formData, { method: "post" });
+    submit(testMarkdown, { method: "post", encType: "text/plain" });
   };
 
   return (

@@ -1,10 +1,15 @@
 import type { ActionFunction } from "@remix-run/node";
-import { commandsToPrintDataXML, padAndCut } from "app/lib/helpers";
+import {
+  commandsToPrintDataXML,
+  padAndCut,
+  parsePrinterResponse,
+} from "app/lib/helpers";
 import { encoder } from "app/lib/encoder";
 import {
   getQueueEnabled,
   getQueuedJobs,
   markJobAsPrinted,
+  savePrinterResponse,
 } from "app/api/requests";
 
 const cutCommand = padAndCut(encoder.initialize()).encode();
@@ -82,12 +87,16 @@ export const action: ActionFunction = async ({ request }) => {
       return nullResponse;
     }
   } else if (mainBody.ConnectionType == SET_RESPONSE) {
-    console.log("Response received:");
-    console.log(JSON.stringify(mainBody));
+    console.log("Job response received.");
 
     if (responseFile) {
-      console.log(responseFile);
-      // TODO: Log responseFile to database
+      try {
+        const parsedResponse = await parsePrinterResponse(responseFile);
+        await savePrinterResponse(parsedResponse);
+        console.log("Response saved successfully.");
+      } catch (error) {
+        console.error("Error processing printer response:", error);
+      }
     }
     return nullResponse;
   } else {

@@ -1,6 +1,54 @@
 import EscPosEncoder from "esc-pos-encoder";
 import * as net from "net";
 import { QR_CODE_DEFAULTS, PRINTER_IP, PRINTER_PORT } from "./constants";
+import { parseString } from "xml2js";
+import { promisify } from "util";
+
+// Add this type definition at the top of the file
+type PrintResponseResult = {
+  PrintResponseInfo: {
+    $: { Version: string };
+    ServerDirectPrint: Array<any>;
+    ePOSPrint?: Array<any>;
+  };
+};
+
+const parseXml = promisify(parseString);
+
+export async function parsePrinterResponse(responseFile: string) {
+  try {
+    const result = (await parseXml(responseFile)) as PrintResponseResult;
+    const printResponseInfo = result.PrintResponseInfo;
+
+    if (!printResponseInfo || printResponseInfo.$.Version !== "3.00") {
+      throw new Error("Invalid or unsupported PrintResponseInfo version");
+    }
+
+    const serverDirectPrint = printResponseInfo.ServerDirectPrint[0];
+    const ePOSPrint = printResponseInfo.ePOSPrint
+      ? printResponseInfo.ePOSPrint[0]
+      : null;
+
+    return {
+      fullXml: responseFile,
+      serverDirectPrintSuccess:
+        serverDirectPrint.Response[0].$.Success === "true",
+      serverDirectPrintErrorSummary:
+        serverDirectPrint.Response[0].ErrorSummary?.[0],
+      serverDirectPrintErrorDetail:
+        serverDirectPrint.Response[0].ErrorDetail?.[0],
+      printerDeviceId: ePOSPrint?.Parameter[0].devid[0],
+      printerJobId: ePOSPrint?.Parameter[0].printjobid[0],
+      printerSuccess:
+        ePOSPrint?.PrintResponse[0].response[0].$.success === "true",
+      printerCode: ePOSPrint?.PrintResponse[0].response[0].$.code,
+      printerStatus: ePOSPrint?.PrintResponse[0].response[0].$.status,
+    };
+  } catch (error) {
+    console.error("Error parsing printer response:", error);
+    throw error;
+  }
+}
 
 export function addDefaultQRCode(
   encoder: EscPosEncoder,

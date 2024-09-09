@@ -3,6 +3,10 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  server: {
+    host: "192.168.1.39",
+    port: 5173,
+  },
   plugins: [
     remix({
       future: {
