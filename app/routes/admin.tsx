@@ -3,7 +3,7 @@ import {
   json,
   type LoaderFunction,
   type ActionFunction,
-} from "@remix-run/node";
+} from "@remix-run/cloudflare";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Form, useSubmit, useActionData } from "@remix-run/react";
-import { json, type ActionFunctionArgs } from "@remix-run/node";
+import { json, type ActionFunctionArgs } from "@remix-run/cloudflare";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { encoder } from "~/lib/encoder";

@@ -1,4 +1,4 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/cloudflare";
 import {
   commandsToPrintDataXML,
   padAndCut,

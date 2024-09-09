@@ -1,4 +1,4 @@
-import { json, type ActionFunctionArgs } from "@remix-run/node";
+import { json, type ActionFunctionArgs } from "@remix-run/cloudflare";
 import { markdown } from "~/lib/markdown";
 import { htmlToEscPos } from "~/lib/htmlToEscPos";
 import { createPrintJob } from "~/api/requests";
