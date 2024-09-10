@@ -20,21 +20,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
-        <header className="bg-gray-800 text-white p-4">
+      <body className="min-h-screen font-sans">
+        <header className="bg-muted p-4 border border-b">
           <nav>
             <ul className="flex space-x-4">
               {navItems.map((item) => (
                 <li key={item.route}>
-                  <Link to={item.route} className="hover:text-gray-300">
-                    {item.title}
-                  </Link>
+                  <Link to={item.route}>{item.title}</Link>
                 </li>
               ))}
             </ul>
           </nav>
         </header>
-        {children}
+        <main className="flex-1">{children}</main>
         <ScrollRestoration />
         <Scripts />
       </body>
