@@ -23,5 +23,3 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     );
   }
 };
-
-export default action;

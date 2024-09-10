@@ -5,4 +5,5 @@ import { createPagesFunctionHandler } from "@remix-run/cloudflare-pages";
 // eslint-disable-next-line import/no-unresolved
 import * as build from "../build/server";
 
+// @ts-ignore-next-line - type errors thrown by resource routes without default exports, these are safe to ignore
 export const onRequest = createPagesFunctionHandler({ build });

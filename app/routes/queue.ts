@@ -105,5 +105,3 @@ export const action: ActionFunction = async ({ request, context }) => {
     return nullResponse;
   }
 };
-
-export default action;

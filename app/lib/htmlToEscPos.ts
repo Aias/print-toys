@@ -1,5 +1,6 @@
+import { AnyNode } from "node_modules/domhandler/lib/esm/node";
 import { encoder } from "./encoder";
-import { JSDOM } from "jsdom";
+import * as cheerio from "cheerio";
 
 const commonReplacements = [
   {
@@ -30,12 +31,11 @@ const commonReplacements = [
 
 export function htmlToEscPos(html: string): Uint8Array {
   encoder.initialize();
-  const dom = new JSDOM(html);
-  const document = dom.window.document;
+  const $ = cheerio.load(html);
 
-  function processNode(node: Node) {
-    if (node.nodeType === dom.window.Node.TEXT_NODE) {
-      let textContent = node.textContent || "";
+  function processNode(node: AnyNode) {
+    if (node.type === "text") {
+      let textContent = $(node).text();
 
       // Apply common replacements
       commonReplacements.forEach(({ search, replace }) => {
@@ -43,12 +43,12 @@ export function htmlToEscPos(html: string): Uint8Array {
       });
 
       encoder.text(textContent);
-    } else if (node.nodeType === dom.window.Node.ELEMENT_NODE) {
-      const element = node as Element;
-      switch (element.tagName.toLowerCase()) {
+    } else if (node.type === "tag") {
+      const element = $(node);
+      switch (node.name.toLowerCase()) {
         case "h1":
           encoder.bold(true).height(2).width(2);
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.bold(false).height(1).width(1);
           encoder.newline();
           break;
@@ -56,7 +56,7 @@ export function htmlToEscPos(html: string): Uint8Array {
           encoder.bold(true);
           encoder.rule({ style: "double" });
           encoder.newline();
-          encoder.text(element.textContent?.toUpperCase() || "");
+          encoder.text(element.text().toUpperCase());
           encoder.bold(false);
           encoder.newline();
           break;
@@ -67,7 +67,7 @@ export function htmlToEscPos(html: string): Uint8Array {
           encoder.bold(true).align("center").invert(true);
           encoder.newline();
           encoder.text(" ");
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.text(" ");
           encoder.newline();
           encoder.bold(false).align("left").invert(false);
@@ -75,31 +75,29 @@ export function htmlToEscPos(html: string): Uint8Array {
         case "b":
         case "strong":
           encoder.bold(true);
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.bold(false);
           break;
         case "i":
         case "em":
-          // encoder.italic(true)
           encoder.bold(true); // Italics not supported, so using bold for emphasis.
-          element.childNodes.forEach(processNode);
-          // encoder.italic(false);
+          element.contents().each((_, child) => processNode(child));
           encoder.bold(false);
           break;
         case "u":
           encoder.underline(true);
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.underline(false);
           break;
         case "a":
           encoder.underline(true);
-          element.childNodes.forEach(processNode);
-          encoder.text(` [${element.getAttribute("href") || ""}]`);
+          element.contents().each((_, child) => processNode(child));
+          encoder.text(` [${element.attr("href") || ""}]`);
           encoder.underline(false);
           break;
         case "li":
           encoder.text("- ");
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.newline();
           break;
         case "br":
@@ -114,29 +112,31 @@ export function htmlToEscPos(html: string): Uint8Array {
           break;
         case "blockquote":
           encoder.align("right").size("small");
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.align("left").size("normal");
           break;
         case "p":
           encoder.newline();
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.newline();
           break;
         case "ul":
         case "ol":
           encoder.newline();
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
           encoder.newline();
           break;
         case "div":
         case "span":
         default:
-          element.childNodes.forEach(processNode);
+          element.contents().each((_, child) => processNode(child));
       }
     }
   }
 
-  processNode(document.body);
+  $("body")
+    .contents()
+    .each((_, node) => processNode(node));
 
   return encoder.encode();
 }
