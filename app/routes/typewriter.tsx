@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { encoder } from "~/lib/encoder";
 import { createPrintJob } from "~/api/requests";
+import { commonReplacements } from "~/lib/htmlToEscPos";
 
 type ActionData =
   | { success: true; line: string }
@@ -18,9 +19,13 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const line = formData.get("line");
 
   if (action === "print" && typeof line === "string") {
-    const escPosCommands = encoder.initialize().line(line).encode();
+    let replacedLine = line;
+    commonReplacements.forEach(({ search, replace }) => {
+      replacedLine = replacedLine.replace(search, replace);
+    });
+    const escPosCommands = encoder.initialize().line(replacedLine).encode();
     await createPrintJob(env, Buffer.from(escPosCommands), false);
-    return json<ActionData>({ success: true, line });
+    return json<ActionData>({ success: true, line: replacedLine });
   } else if (action === "cut") {
     await createPrintJob(env, Buffer.from([]), true);
     return json<ActionData>({ success: true, cut: true });

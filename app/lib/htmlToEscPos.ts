@@ -2,13 +2,13 @@ import { AnyNode } from "node_modules/domhandler/lib/esm/node";
 import { encoder } from "./encoder";
 import * as cheerio from "cheerio";
 
-const commonReplacements = [
+export const commonReplacements = [
   {
-    search: /[""]/g,
+    search: /[\u201C\u201D""]/g,
     replace: '"',
   },
   {
-    search: /['']/g,
+    search: /[\u2018\u2019'']/g,
     replace: "'",
   },
   {
