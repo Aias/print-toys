@@ -1,8 +1,8 @@
-import { encoder } from "./encoder";
-import { addDefaultQRCode, padAndCut } from "./helpers";
+import { createEncoder } from "./encoder";
+import { addDefaultQRCode, feedAndCutCommand } from "./helpers";
 
 // Initialize the encoder
-let testMessage = encoder.initialize();
+let testMessage = createEncoder();
 
 // Test text and line wrapping
 testMessage = testMessage
@@ -97,7 +97,7 @@ testMessage = testMessage.line(
 );
 
 // Add padding and cut
-testMessage = padAndCut(testMessage);
+testMessage.raw(feedAndCutCommand);
 
 // Encode the result
 const encodedTestMessage = testMessage.encode();

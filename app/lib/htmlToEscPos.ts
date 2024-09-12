@@ -1,20 +1,20 @@
 import { AnyNode } from "node_modules/domhandler/lib/esm/node";
-import { encoder } from "./encoder";
+import { createEncoder } from "./encoder";
 import * as cheerio from "cheerio";
 
 export const commonReplacements = [
-  {
-    search: /[\u201C\u201D""]/g,
-    replace: '"',
-  },
-  {
-    search: /[\u2018\u2019'']/g,
-    replace: "'",
-  },
-  {
-    search: /[–—]/g,
-    replace: "-",
-  },
+  // {
+  //   search: /[\u201C\u201D""]/g,
+  //   replace: '"',
+  // },
+  // {
+  //   search: /[\u2018\u2019'']/g,
+  //   replace: "'",
+  // },
+  // {
+  //   search: /[–—]/g,
+  //   replace: "-",
+  // },
   {
     search: /\n/g,
     replace: "",
@@ -30,7 +30,7 @@ export const commonReplacements = [
 ];
 
 export function htmlToEscPos(html: string): Uint8Array {
-  encoder.initialize();
+  let encoder = createEncoder();
   const $ = cheerio.load(html);
 
   function processNode(node: AnyNode) {

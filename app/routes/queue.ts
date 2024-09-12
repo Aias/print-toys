@@ -1,18 +1,15 @@
 import type { ActionFunction } from "@remix-run/cloudflare";
 import {
   commandsToPrintDataXML,
-  padAndCut,
+  feedAndCutCommand,
   parsePrinterResponse,
 } from "app/lib/helpers";
-import { encoder } from "app/lib/encoder";
 import {
   getQueueEnabled,
   getQueuedJobs,
   markJobAsPrinted,
   savePrinterResponse,
 } from "app/api/requests";
-
-const cutCommand = padAndCut(encoder.initialize()).encode();
 
 async function processQueue(env: Env, markAsPrinted: boolean = true) {
   const jobs = await getQueuedJobs(env);
@@ -31,7 +28,7 @@ async function processQueue(env: Env, markAsPrinted: boolean = true) {
       combinedCommands = new Uint8Array([
         ...combinedCommands,
         ...jobCommands,
-        ...(job.cutAfterPrint ? cutCommand : new Uint8Array()),
+        ...(job.cutAfterPrint ? feedAndCutCommand : new Uint8Array()),
       ]);
       if (markAsPrinted) {
         await markJobAsPrinted(env, job.jobId);
