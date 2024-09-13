@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { encoder } from "~/lib/encoder";
 import { createPrintJob } from "~/api/requests";
-import { commonReplacements } from "~/lib/htmlToEscPos";
+import { commonReplacements } from "~/lib/html-to-esc-pos";
 
 type ActionData =
   | { success: true; line: string }

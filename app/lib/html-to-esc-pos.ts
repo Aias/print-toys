@@ -1,7 +1,7 @@
 import { AnyNode } from "node_modules/domhandler/lib/esm/node";
 import { createEncoder } from "./encoder";
 import * as cheerio from "cheerio";
-import { processImage } from "./helpers";
+import { urlToCanvasImage, rawDataToCanvasImage } from "./image-processing";
 
 export const commonReplacements = [
   // {
@@ -126,7 +126,15 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           try {
             const src = element.attr("src");
             if (src) {
-              const { canvas, width, height } = await processImage(src);
+              let processedImage;
+              if (src.startsWith("data:image")) {
+                // Handle base64 encoded images
+                const rawData = Buffer.from(src.split(",")[1], "base64");
+                processedImage = await rawDataToCanvasImage(rawData);
+              } else {
+                processedImage = await urlToCanvasImage(src);
+              }
+              const { canvas, width, height } = processedImage;
               encoder.image(canvas, width, height, "floydsteinberg");
               encoder.newline();
             }

@@ -8059,6 +8059,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.5.0"
     "@typescript-eslint/parser": "npm:^8.5.0"
     autoprefixer: "npm:^10.4.20"
+    canvas: "npm:^2.11.2"
     cheerio: "npm:^1.0.0"
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.1"

@@ -17,6 +17,11 @@ export const routes: RouteInfo[] = [
     description: "Write and print notes in Markdown format.",
   },
   {
+    title: "Image Printer",
+    route: "/print-image",
+    description: "Print an image from the clipboard or file upload.",
+  },
+  {
     title: "Admin",
     route: "/admin",
     description: "Administer the printer and print jobs.",
