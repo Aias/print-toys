@@ -49,9 +49,9 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
       switch (node.name.toLowerCase()) {
         case "h1":
           encoder.bold(true).height(2).width(2);
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.bold(false).height(1).width(1);
           encoder.newline();
           break;
@@ -70,9 +70,9 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           encoder.bold(true).align("center").invert(true);
           encoder.newline();
           encoder.text(" ");
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.text(" ");
           encoder.newline();
           encoder.bold(false).align("left").invert(false);
@@ -80,39 +80,39 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
         case "b":
         case "strong":
           encoder.bold(true);
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.bold(false);
           break;
         case "i":
         case "em":
           encoder.bold(true); // Italics not supported, so using bold for emphasis.
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.bold(false);
           break;
         case "u":
           encoder.underline(true);
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.underline(false);
           break;
         case "a":
           encoder.underline(true);
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.text(` [${element.attr("href") || ""}]`);
           encoder.underline(false);
           break;
         case "li":
           encoder.text("- ");
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.newline();
           break;
         case "br":
@@ -128,6 +128,7 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
             if (src) {
               const { canvas, width, height } = await processImage(src);
               encoder.image(canvas, width, height, "floydsteinberg");
+              encoder.newline();
             }
           } catch (error) {
             console.error("Error processing image:", error);
@@ -135,43 +136,40 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           break;
         case "blockquote":
           encoder.align("right").size("small");
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.align("left").size("normal");
           break;
         case "p":
           encoder.newline();
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.newline();
           break;
         case "ul":
         case "ol":
           encoder.newline();
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
           encoder.newline();
           break;
         case "div":
         case "span":
         default:
-          await Promise.all(
-            element.contents().map((_, child) => processNode(child))
-          );
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
       }
     }
   }
 
-  // Process all nodes
-  await Promise.all(
-    $("body")
-      .contents()
-      .map((_, node) => processNode(node))
-      .get()
-  );
+  // Process all nodes sequentially
+  for (const node of $("body").contents().get()) {
+    await processNode(node);
+  }
 
   return encoder.encode();
 }
