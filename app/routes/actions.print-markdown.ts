@@ -8,7 +8,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
   try {
     const html = await markdown.parse(markdownText);
-    const escPosCommands = htmlToEscPos(html);
+    const escPosCommands = await htmlToEscPos(html);
 
     await createPrintJob(context.cloudflare.env, Buffer.from(escPosCommands));
     return json({ success: true, message: "Note printed successfully" });

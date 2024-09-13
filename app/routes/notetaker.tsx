@@ -7,7 +7,7 @@ import {
 } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { mdExampleText } from "~/lib/markdown";
+import { mdPatternLanguage, mdWithImage } from "~/test-data/markdown-examples";
 import { action as printMarkdownAction } from "./actions.print-markdown";
 
 export const action = printMarkdownAction;
@@ -24,14 +24,16 @@ export default function Notetaker() {
     submit(markdownText, submitOptions);
   };
 
-  const handleTestPrint = () => {
-    submit(mdExampleText, submitOptions);
+  const handleTestPrint = (testContent: string) => {
+    submit(testContent, submitOptions);
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-[720px] mx-auto">
       <h1 className="text-2xl font-bold mb-4">Notetaker</h1>
-      <Form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* Main content area */}
+      <Form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <Textarea
           name="markdownText"
           value={markdownText}
@@ -39,15 +41,11 @@ export default function Notetaker() {
           placeholder="Type your note in Markdown format"
           className="h-64"
         />
-        <div className="flex space-x-4">
-          <Button type="submit" className="flex-grow">
-            Print Note
-          </Button>
-          <Button type="button" onClick={handleTestPrint} variant="secondary">
-            Test Print
-          </Button>
-        </div>
+        <Button type="submit" className="w-full">
+          Print Note
+        </Button>
       </Form>
+
       {actionData && (
         <p
           className={`mt-4 ${
@@ -57,6 +55,25 @@ export default function Notetaker() {
           {actionData.message}
         </p>
       )}
+
+      {/* Testing area */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Test Prints</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => handleTestPrint(mdPatternLanguage)}
+            variant="secondary"
+          >
+            Test Pattern Language
+          </Button>
+          <Button
+            onClick={() => handleTestPrint(mdWithImage)}
+            variant="secondary"
+          >
+            Test With Image
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import * as net from "net";
 import { QR_CODE_DEFAULTS, PRINTER_IP, PRINTER_PORT } from "./constants";
 import { parseString } from "xml2js";
 import { promisify } from "util";
+import { createCanvas, loadImage, Canvas } from "canvas";
 
 // Add this type definition at the top of the file
 type PrintResponseResult = {
@@ -143,3 +144,37 @@ export const commandsToPrintDataXML = (
     </ePOSPrint>
   </PrintRequestInfo>`;
 };
+
+export async function processImage(
+  url: string,
+  maxWidth: number = 512
+): Promise<{ canvas: Canvas; width: number; height: number }> {
+  try {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const image = await loadImage(buffer);
+    let { width, height } = image;
+
+    // Calculate new dimensions while maintaining aspect ratio
+    if (width > maxWidth) {
+      const aspectRatio = width / height;
+      width = maxWidth;
+      height = Math.round(width / aspectRatio);
+    }
+
+    // Ensure width and height are multiples of 8
+    width = Math.floor(width / 8) * 8;
+    height = Math.floor(height / 8) * 8;
+
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(image, 0, 0, width, height);
+
+    return { canvas, width, height };
+  } catch (error) {
+    console.error("Error processing image:", error);
+    throw error;
+  }
+}

@@ -45,6 +45,7 @@ const defaultOptions: EncoderOptions = {
   width: LINE_WIDTH,
   wordWrap: true,
   codepageCandidates: supportedCodePages,
+  imageMode: "raster",
 };
 
 export const encoder = new EscPosEncoder(defaultOptions);

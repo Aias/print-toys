@@ -1,6 +1,7 @@
 import { AnyNode } from "node_modules/domhandler/lib/esm/node";
 import { createEncoder } from "./encoder";
 import * as cheerio from "cheerio";
+import { processImage } from "./helpers";
 
 export const commonReplacements = [
   // {
@@ -29,11 +30,11 @@ export const commonReplacements = [
   },
 ];
 
-export function htmlToEscPos(html: string): Uint8Array {
+export async function htmlToEscPos(html: string): Promise<Uint8Array> {
   let encoder = createEncoder();
   const $ = cheerio.load(html);
 
-  function processNode(node: AnyNode) {
+  async function processNode(node: AnyNode) {
     if (node.type === "text") {
       let textContent = $(node).text();
 
@@ -48,7 +49,9 @@ export function htmlToEscPos(html: string): Uint8Array {
       switch (node.name.toLowerCase()) {
         case "h1":
           encoder.bold(true).height(2).width(2);
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.bold(false).height(1).width(1);
           encoder.newline();
           break;
@@ -67,7 +70,9 @@ export function htmlToEscPos(html: string): Uint8Array {
           encoder.bold(true).align("center").invert(true);
           encoder.newline();
           encoder.text(" ");
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.text(" ");
           encoder.newline();
           encoder.bold(false).align("left").invert(false);
@@ -75,29 +80,39 @@ export function htmlToEscPos(html: string): Uint8Array {
         case "b":
         case "strong":
           encoder.bold(true);
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.bold(false);
           break;
         case "i":
         case "em":
           encoder.bold(true); // Italics not supported, so using bold for emphasis.
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.bold(false);
           break;
         case "u":
           encoder.underline(true);
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.underline(false);
           break;
         case "a":
           encoder.underline(true);
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.text(` [${element.attr("href") || ""}]`);
           encoder.underline(false);
           break;
         case "li":
           encoder.text("- ");
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.newline();
           break;
         case "br":
@@ -108,35 +123,55 @@ export function htmlToEscPos(html: string): Uint8Array {
           encoder.rule({ style: "single" });
           break;
         case "img":
-          console.warn("Image processing is not fully implemented");
+          try {
+            const src = element.attr("src");
+            if (src) {
+              const { canvas, width, height } = await processImage(src);
+              encoder.image(canvas, width, height, "floydsteinberg");
+            }
+          } catch (error) {
+            console.error("Error processing image:", error);
+          }
           break;
         case "blockquote":
           encoder.align("right").size("small");
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.align("left").size("normal");
           break;
         case "p":
           encoder.newline();
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.newline();
           break;
         case "ul":
         case "ol":
           encoder.newline();
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
           encoder.newline();
           break;
         case "div":
         case "span":
         default:
-          element.contents().each((_, child) => processNode(child));
+          await Promise.all(
+            element.contents().map((_, child) => processNode(child))
+          );
       }
     }
   }
 
-  $("body")
-    .contents()
-    .each((_, node) => processNode(node));
+  // Process all nodes
+  await Promise.all(
+    $("body")
+      .contents()
+      .map((_, node) => processNode(node))
+      .get()
+  );
 
   return encoder.encode();
 }
