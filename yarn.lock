@@ -425,13 +425,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workers-shared@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@cloudflare/workers-shared@npm:0.5.0"
+"@cloudflare/workers-shared@npm:0.5.3":
+  version: 0.5.3
+  resolution: "@cloudflare/workers-shared@npm:0.5.3"
   dependencies:
     mime: "npm:^3.0.0"
     zod: "npm:^3.22.3"
-  checksum: 10c0/8376e6418ca6a1851d327ee813ff6f38da2933328b31da15242c1b554fc79ed2123fee7d3ebd6421012e06c6b509571ff3031f28262efb5d7d77b3dcd061477b
+  checksum: 10c0/89b795e0657d4311732be6d4ff2aacd0b920959f0de3d1d866194715d03bf9e0094f52e48c4cd5f4fc75a4f8211293043784c52d74c473def3860eda28eb66ea
   languageName: node
   linkType: hard
 
@@ -2063,12 +2063,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.5.4":
+"@types/node@npm:*":
   version: 22.5.4
   resolution: "@types/node@npm:22.5.4"
   dependencies:
     undici-types: "npm:~6.19.2"
   checksum: 10c0/b445daa7eecd761ad4d778b882d6ff7bcc3b4baad2086ea9804db7c5d4a4ab0298b00d7f5315fc640a73b5a1d52bbf9628e09c9fec0cf44dbf9b4df674a8717d
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.5.5":
+  version: 22.5.5
+  resolution: "@types/node@npm:22.5.5"
+  dependencies:
+    undici-types: "npm:~6.19.2"
+  checksum: 10c0/ead9495cfc6b1da5e7025856dcce2591e9bae635357410c0d2dd619fce797d2a1d402887580ca4b336cb78168b195224869967de370a23f61663cf1e4836121c
   languageName: node
   linkType: hard
 
@@ -6970,9 +6979,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"miniflare@npm:3.20240909.0":
-  version: 3.20240909.0
-  resolution: "miniflare@npm:3.20240909.0"
+"miniflare@npm:3.20240909.1":
+  version: 3.20240909.1
+  resolution: "miniflare@npm:3.20240909.1"
   dependencies:
     "@cspotcode/source-map-support": "npm:0.8.1"
     acorn: "npm:^8.8.0"
@@ -6988,7 +6997,7 @@ __metadata:
     zod: "npm:^3.22.3"
   bin:
     miniflare: bootstrap.js
-  checksum: 10c0/379c7a4e9f1af3f58cde994641ac56970e74a1d080539aac0587cd2862a9ea432520b215beb33ab34015f4cb59769b08ed8961ed4cededbc6999dd7530bbea4b
+  checksum: 10c0/e7d4fe6db4a15a1ca28f210e0b85dd5efae3b79184628e794bbb899dd035b28e1782aa499937bc336ab20a7b07998817f37e8ab294d1b542187bb7c4bf86af5d
   languageName: node
   linkType: hard
 
@@ -7795,7 +7804,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^1.0.0, picocolors@npm:^1.0.1":
+"picocolors@npm:^1.0.0, picocolors@npm:^1.0.1, picocolors@npm:^1.1.0":
   version: 1.1.0
   resolution: "picocolors@npm:1.1.0"
   checksum: 10c0/86946f6032148801ef09c051c6fb13b5cf942eaf147e30ea79edb91dd32d700934edebe782a1078ff859fb2b816792e97ef4dab03d7f0b804f6b01a0df35e023
@@ -7998,7 +8007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.19, postcss@npm:^8.4.23, postcss@npm:^8.4.43, postcss@npm:^8.4.45":
+"postcss@npm:^8.4.19, postcss@npm:^8.4.23, postcss@npm:^8.4.43":
   version: 8.4.45
   resolution: "postcss@npm:8.4.45"
   dependencies:
@@ -8006,6 +8015,17 @@ __metadata:
     picocolors: "npm:^1.0.1"
     source-map-js: "npm:^1.2.0"
   checksum: 10c0/ad6f8b9b1157d678560373696109745ab97a947d449f8a997acac41c7f1e4c0f3ca4b092d6df1387f430f2c9a319987b1780dbdc27e35800a88cde9b606c1e8f
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.47":
+  version: 8.4.47
+  resolution: "postcss@npm:8.4.47"
+  dependencies:
+    nanoid: "npm:^3.3.7"
+    picocolors: "npm:^1.1.0"
+    source-map-js: "npm:^1.2.1"
+  checksum: 10c0/929f68b5081b7202709456532cee2a145c1843d391508c5a09de2517e8c4791638f71dd63b1898dba6712f8839d7a6da046c72a5e44c162e908f5911f57b5f44
   languageName: node
   linkType: hard
 
@@ -8052,7 +8072,7 @@ __metadata:
     "@types/cheerio": "npm:^0.22.35"
     "@types/esc-pos-encoder": "npm:^1.3.4"
     "@types/marked": "npm:^6.0.0"
-    "@types/node": "npm:^22.5.4"
+    "@types/node": "npm:^22.5.5"
     "@types/react": "npm:^18.3.5"
     "@types/react-dom": "npm:^18.3.0"
     "@types/xml2js": "npm:^0.4.14"
@@ -8073,7 +8093,7 @@ __metadata:
     isbot: "npm:^5.1.17"
     marked: "npm:^14.1.2"
     node-thermal-printer: "npm:^4.4.3"
-    postcss: "npm:^8.4.45"
+    postcss: "npm:^8.4.47"
     prisma: "npm:^5.19.1"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -8084,7 +8104,7 @@ __metadata:
     typescript: "npm:^5.6.2"
     vite: "npm:^5.4.5"
     vite-tsconfig-paths: "npm:^5.0.1"
-    wrangler: "npm:^3.77.0"
+    wrangler: "npm:^3.78.2"
     xml2js: "npm:^0.6.2"
   languageName: unknown
   linkType: soft
@@ -8929,6 +8949,13 @@ __metadata:
   version: 1.2.0
   resolution: "source-map-js@npm:1.2.0"
   checksum: 10c0/7e5f896ac10a3a50fe2898e5009c58ff0dc102dcb056ed27a354623a0ece8954d4b2649e1a1b2b52ef2e161d26f8859c7710350930751640e71e374fe2d321a4
+  languageName: node
+  linkType: hard
+
+"source-map-js@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "source-map-js@npm:1.2.1"
+  checksum: 10c0/7bda1fc4c197e3c6ff17de1b8b2c20e60af81b63a52cb32ec5a5d67a20a7d42651e2cb34ebe93833c5a2a084377e17455854fee3e21e7925c64a51b6a52b0faf
   languageName: node
   linkType: hard
 
@@ -10277,12 +10304,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrangler@npm:^3.77.0":
-  version: 3.77.0
-  resolution: "wrangler@npm:3.77.0"
+"wrangler@npm:^3.78.2":
+  version: 3.78.2
+  resolution: "wrangler@npm:3.78.2"
   dependencies:
     "@cloudflare/kv-asset-handler": "npm:0.3.4"
-    "@cloudflare/workers-shared": "npm:0.5.0"
+    "@cloudflare/workers-shared": "npm:0.5.3"
     "@esbuild-plugins/node-globals-polyfill": "npm:^0.2.3"
     "@esbuild-plugins/node-modules-polyfill": "npm:^0.2.2"
     blake3-wasm: "npm:^2.1.5"
@@ -10290,7 +10317,7 @@ __metadata:
     date-fns: "npm:^3.6.0"
     esbuild: "npm:0.17.19"
     fsevents: "npm:~2.3.2"
-    miniflare: "npm:3.20240909.0"
+    miniflare: "npm:3.20240909.1"
     nanoid: "npm:^3.3.3"
     path-to-regexp: "npm:^6.2.0"
     resolve: "npm:^1.22.8"
@@ -10311,7 +10338,7 @@ __metadata:
   bin:
     wrangler: bin/wrangler.js
     wrangler2: bin/wrangler.js
-  checksum: 10c0/76163991eb2e59efe619b432021ab2bfb8bc65993651e4ca9e383bc342bca06829ea2c2fa6772a567128dfade3dd354e799c51a44c274020302d6755a8bd941f
+  checksum: 10c0/5f6cbdbde330dbe4c0fa15d7889daa9144520d70228e4b9d916c54513c5b408632a97de4b1893ed1d0c73fcebb451d468152b4f022d5368716de317461e4475d
   languageName: node
   linkType: hard
 
