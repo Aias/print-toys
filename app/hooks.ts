@@ -1,4 +1,4 @@
-import type { LoaderFunction, ActionFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import { useLoaderData, useActionData } from "@remix-run/react";
 
 export function useTypedLoaderData<T extends LoaderFunction>() {

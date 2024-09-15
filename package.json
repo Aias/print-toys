@@ -12,10 +12,10 @@
 		"deploy": "yarn build && vercel deploy",
 		"dev": "remix vite:dev --host",
 		"lint": "eslint .",
+		"postinstall": "prisma generate",
 		"prisma:studio": "prisma studio",
 		"start": "remix-serve build",
-		"typecheck": "tsc",
-		"typegen": "prisma generate"
+		"typecheck": "tsc"
 	},
 	"dependencies": {
 		"@prisma/client": "5.19.1",
