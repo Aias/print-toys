@@ -1,9 +1,9 @@
-import { json, type ActionFunctionArgs } from "@remix-run/cloudflare";
 import { rawDataToCanvasImage } from "~/lib/image-processing";
 import { createEncoder } from "~/lib/encoder";
 import { createPrintJob } from "~/api/requests";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 
-export const action = async ({ request, context }: ActionFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const formData = await request.formData();
     const imageData = formData.get("image") as File;
@@ -31,7 +31,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     const printData = encoder.encode();
 
     // Create print job
-    await createPrintJob(context.cloudflare.env, Buffer.from(printData));
+    await createPrintJob(Buffer.from(printData));
 
     return json({ success: true, message: "Image added to print queue" });
   } catch (error) {

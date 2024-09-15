@@ -1,4 +1,4 @@
-import type { ActionFunction } from "@remix-run/cloudflare";
+import type { ActionFunction } from "@remix-run/node";
 import {
   commandsToPrintDataXML,
   feedAndCutCommand,
@@ -11,8 +11,8 @@ import {
   savePrinterResponse,
 } from "app/api/requests";
 
-async function processQueue(env: Env, markAsPrinted: boolean = true) {
-  const jobs = await getQueuedJobs(env);
+async function processQueue(markAsPrinted: boolean = true) {
+  const jobs = await getQueuedJobs();
 
   if (jobs.length === 0) {
     return null;
@@ -31,7 +31,7 @@ async function processQueue(env: Env, markAsPrinted: boolean = true) {
         ...(job.cutAfterPrint ? feedAndCutCommand : new Uint8Array()),
       ]);
       if (markAsPrinted) {
-        await markJobAsPrinted(env, job.jobId);
+        await markJobAsPrinted(job.jobId);
         console.log(`Job ${job.jobId} processed successfully.`);
       }
     } catch (error) {
@@ -53,7 +53,7 @@ const nullResponse = new Response(null, {
   },
 });
 
-export const action: ActionFunction = async ({ request, context }) => {
+export const action: ActionFunction = async ({ request }) => {
   const bodyText = await request.text();
   const rawParams = new URLSearchParams(bodyText);
   const params: Record<string, string> = {};
@@ -65,10 +65,10 @@ export const action: ActionFunction = async ({ request, context }) => {
   const { ResponseFile: responseFile, ...mainBody } = params;
 
   if (mainBody.ConnectionType == GET_REQUEST) {
-    const queueEnabled = await getQueueEnabled(context.cloudflare.env);
+    const queueEnabled = await getQueueEnabled();
 
     if (queueEnabled) {
-      const xmlResponse = await processQueue(context.cloudflare.env);
+      const xmlResponse = await processQueue();
       if (xmlResponse) {
         // There are print jobs available
         return new Response(xmlResponse, {
@@ -89,7 +89,7 @@ export const action: ActionFunction = async ({ request, context }) => {
     if (responseFile) {
       try {
         const parsedResponse = await parsePrinterResponse(responseFile);
-        await savePrinterResponse(context.cloudflare.env, parsedResponse);
+        await savePrinterResponse(parsedResponse);
         console.log("Response saved successfully.");
       } catch (error) {
         console.error("Error processing printer response:", error);

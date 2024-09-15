@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Form, useSubmit, useActionData } from "@remix-run/react";
-import { json, type ActionFunctionArgs } from "@remix-run/cloudflare";
+import { json, type ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { encoder } from "~/lib/encoder";
@@ -12,8 +12,7 @@ type ActionData =
   | { success: true; cut: true }
   | { success: false };
 
-export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const env = context.cloudflare.env;
+export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const action = formData.get("action");
   const line = formData.get("line");
@@ -24,10 +23,10 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
       replacedLine = replacedLine.replace(search, replace);
     });
     const escPosCommands = encoder.initialize().line(replacedLine).encode();
-    await createPrintJob(env, Buffer.from(escPosCommands), false);
+    await createPrintJob(Buffer.from(escPosCommands), false);
     return json<ActionData>({ success: true, line: replacedLine });
   } else if (action === "cut") {
-    await createPrintJob(env, Buffer.from([]), true);
+    await createPrintJob(Buffer.from([]), true);
     return json<ActionData>({ success: true, cut: true });
   }
 
