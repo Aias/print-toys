@@ -14,9 +14,9 @@ interface ImageAdjustments {
 }
 
 const defaultAdjustments: ImageAdjustments = {
-  contrast: 1,
-  brightness: 0,
-  gamma: 1,
+  contrast: 1.5,
+  brightness: 10,
+  gamma: 0.5,
 };
 
 async function processImage(

@@ -4,14 +4,55 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  Link,
+  useLoaderData,
+  useFetcher,
 } from "@remix-run/react";
-import { routes } from "~/lib/routes";
+import { json, type LoaderFunction } from "@remix-run/node";
+import { Navigation } from "~/components/Navigation";
+import { getQueueEnabled } from "~/api/requests";
 import "./tailwind.css";
+import { useCallback, useEffect, useState } from "react";
 
-const navItems = [{ title: "Home", route: "/" }, ...routes];
+interface QueueStatusData {
+  queueEnabled: boolean;
+  error?: string;
+}
+
+export const loader: LoaderFunction = async () => {
+  try {
+    const queueEnabled = await getQueueEnabled();
+    return json<QueueStatusData>({ queueEnabled });
+  } catch (error) {
+    console.error("Error getting queue state:", error);
+    return json<QueueStatusData>(
+      { queueEnabled: false, error: "Failed to get queue state." },
+      { status: 500 }
+    );
+  }
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const loaderData = useLoaderData<QueueStatusData>();
+  const initialQueueEnabled = loaderData?.queueEnabled ?? false;
+  const [queueEnabled, setQueueEnabled] = useState(initialQueueEnabled);
+  const fetcher = useFetcher<QueueStatusData>();
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setQueueEnabled(fetcher.data.queueEnabled);
+    }
+  }, [fetcher.data]);
+
+  const toggleQueue = useCallback(
+    (enable: boolean) => {
+      fetcher.submit(
+        { enable: enable.toString() },
+        { method: "post", action: "/actions/set-queue-status" }
+      );
+    },
+    [fetcher]
+  );
+
   return (
     <html lang="en">
       <head>
@@ -22,15 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="min-h-screen font-sans">
         <header className="bg-muted p-4 border border-b">
-          <nav>
-            <ul className="flex space-x-4">
-              {navItems.map((item) => (
-                <li key={item.route}>
-                  <Link to={item.route}>{item.title}</Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <Navigation queueEnabled={queueEnabled} toggleQueue={toggleQueue} />
         </header>
         <main className="flex-1">{children}</main>
         <ScrollRestoration />

@@ -7,9 +7,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     const formData = await request.formData();
     const imageData = formData.get("image") as File;
-    const contrast = Number(formData.get("contrast")) || 1.2;
-    const brightness = Number(formData.get("brightness")) || 10;
-    const gamma = Number(formData.get("gamma")) || 1.0;
+    // const contrast = Number(formData.get("contrast")) || 1.2;
+    // const brightness = Number(formData.get("brightness")) || 10;
+    // const gamma = Number(formData.get("gamma")) || 1.0;
 
     if (!imageData) {
       return json(
@@ -19,11 +19,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     const buffer = Buffer.from(await imageData.arrayBuffer());
-    const { canvas, width, height } = await rawDataToCanvasImage(buffer, {
-      contrast,
-      brightness,
-      gamma,
-    });
+    const { canvas, width, height } = await rawDataToCanvasImage(buffer);
 
     const encoder = createEncoder();
     encoder.image(canvas, width, height, "atkinson");
