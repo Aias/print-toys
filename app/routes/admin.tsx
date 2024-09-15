@@ -3,7 +3,7 @@ import {
   json,
   type LoaderFunction,
   type ActionFunction,
-} from "@remix-run/cloudflare";
+} from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
@@ -13,9 +13,9 @@ interface QueueStatusResponse {
   queueEnabled: boolean;
 }
 
-export const loader: LoaderFunction = async ({ context }) => {
+export const loader: LoaderFunction = async () => {
   try {
-    const queueEnabled = await getQueueEnabled(context.cloudflare.env);
+    const queueEnabled = await getQueueEnabled();
 
     return json({ queueEnabled });
   } catch (error) {
@@ -24,12 +24,12 @@ export const loader: LoaderFunction = async ({ context }) => {
   }
 };
 
-export const action: ActionFunction = async ({ request, context }) => {
+export const action: ActionFunction = async ({ request }) => {
   try {
     const formData = await request.formData();
     const enableQueue = formData.get("enable") === "true";
 
-    await setQueueEnabled(context.cloudflare.env, enableQueue);
+    await setQueueEnabled(enableQueue);
 
     return json({ queueEnabled: enableQueue });
   } catch (error) {
