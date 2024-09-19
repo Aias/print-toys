@@ -56,7 +56,7 @@ export async function markJobAsPrinted(jobId: string) {
 
 export async function createPrintJob(
   escPosCommands: Buffer,
-  cutAfterPrint?: boolean
+  cutAfterPrint: boolean = true
 ) {
   await prisma.printJob.create({
     data: {
