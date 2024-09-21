@@ -1,8 +1,7 @@
-import EscPosEncoder from "esc-pos-encoder";
-import { LINE_WIDTH } from "./constants";
-import type { codepageType, EncoderOptions } from "esc-pos-encoder";
+import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder";
+import { createCanvas } from "canvas";
 
-export const supportedCodePages: codepageType[] = [
+export const supportedCodePages = [
   "cp437", // PC437: USA, Standard Europe
   "cp850", // PC850: Multilingual
   "cp860", // PC860: Portuguese
@@ -41,17 +40,19 @@ export const supportedCodePages: codepageType[] = [
   "rk1048", // KZ-1048: Kazakhstan
 ];
 
-const defaultOptions: EncoderOptions = {
-  width: LINE_WIDTH,
-  wordWrap: true,
-  codepageCandidates: supportedCodePages,
+const defaultOptions = {
+  printerModel: "epson-tm-t88vi",
   imageMode: "raster",
-};
+  createCanvas,
+} as const;
 
-export const encoder = new EscPosEncoder(defaultOptions);
+export const encoder = new ReceiptPrinterEncoder(defaultOptions);
 
-export const createEncoder = (options?: EncoderOptions) => {
-  return new EscPosEncoder({ ...defaultOptions, ...options })
+export const createEncoder = (options?: any) => {
+  return new ReceiptPrinterEncoder({
+    ...defaultOptions,
+    ...options,
+  })
     .initialize()
     .codepage("auto");
 };

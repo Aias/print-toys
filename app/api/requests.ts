@@ -54,14 +54,10 @@ export async function markJobAsPrinted(jobId: string) {
   });
 }
 
-export async function createPrintJob(
-  escPosCommands: Buffer,
-  cutAfterPrint: boolean = true
-) {
+export async function createPrintJob(escPosCommands: Buffer) {
   await prisma.printJob.create({
     data: {
       escPosCommands,
-      cutAfterPrint,
     },
   });
 }

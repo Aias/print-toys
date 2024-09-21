@@ -24,7 +24,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const encoder = createEncoder();
     encoder.image(canvas, width, height, "atkinson");
 
-    const printData = encoder.encode();
+    const printData = encoder.cut().encode();
 
     // Create print job
     await createPrintJob(Buffer.from(printData));

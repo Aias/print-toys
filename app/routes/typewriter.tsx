@@ -23,10 +23,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       replacedLine = replacedLine.replace(search, replace);
     });
     const escPosCommands = encoder.initialize().line(replacedLine).encode();
-    await createPrintJob(Buffer.from(escPosCommands), false);
+    await createPrintJob(Buffer.from(escPosCommands));
     return json<ActionData>({ success: true, line: replacedLine });
   } else if (action === "cut") {
-    await createPrintJob(Buffer.from([]), true);
+    const escPosCommands = encoder.initialize().cut().encode();
+    await createPrintJob(Buffer.from(escPosCommands));
     return json<ActionData>({ success: true, cut: true });
   }
 

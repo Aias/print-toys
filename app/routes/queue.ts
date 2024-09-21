@@ -1,9 +1,5 @@
 import type { ActionFunction } from "@remix-run/node";
-import {
-  commandsToPrintDataXML,
-  feedAndCutCommand,
-  parsePrinterResponse,
-} from "app/lib/helpers";
+import { commandsToPrintDataXML, parsePrinterResponse } from "app/lib/helpers";
 import {
   getQueueEnabled,
   getQueuedJobs,
@@ -25,11 +21,7 @@ async function processQueue(markAsPrinted: boolean = true) {
       // Convert Buffer to Uint8Array
       const jobCommands = new Uint8Array(job.escPosCommands);
 
-      combinedCommands = new Uint8Array([
-        ...combinedCommands,
-        ...jobCommands,
-        ...(job.cutAfterPrint ? feedAndCutCommand : new Uint8Array()),
-      ]);
+      combinedCommands = new Uint8Array([...combinedCommands, ...jobCommands]);
       if (markAsPrinted) {
         await markJobAsPrinted(job.jobId);
         console.log(`Job ${job.jobId} processed successfully.`);

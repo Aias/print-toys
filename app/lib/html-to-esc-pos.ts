@@ -1,4 +1,4 @@
-import { AnyNode } from "node_modules/domhandler/lib/esm/node";
+import { AnyNode } from "domhandler";
 import { createEncoder } from "./encoder";
 import * as cheerio from "cheerio";
 import { urlToCanvasImage, rawDataToCanvasImage } from "./image-processing";
@@ -48,11 +48,11 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
       const element = $(node);
       switch (node.name.toLowerCase()) {
         case "h1":
-          encoder.bold(true).height(2).width(2);
+          encoder.bold(true).size(2);
           for (const child of element.contents().get()) {
             await processNode(child);
           }
-          encoder.bold(false).height(1).width(1);
+          encoder.bold(false).size(1);
           encoder.newline();
           break;
         case "h2":
@@ -143,11 +143,11 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           }
           break;
         case "blockquote":
-          encoder.align("right").size("small");
+          encoder.align("right").font("B");
           for (const child of element.contents().get()) {
             await processNode(child);
           }
-          encoder.align("left").size("normal");
+          encoder.align("left").font("A");
           break;
         case "p":
           encoder.newline();
@@ -179,5 +179,5 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
     await processNode(node);
   }
 
-  return encoder.encode();
+  return encoder.cut().encode();
 }

@@ -1,6 +1,5 @@
-import EscPosEncoder from "esc-pos-encoder";
 import * as net from "net";
-import { QR_CODE_DEFAULTS, PRINTER_IP, PRINTER_PORT } from "./constants";
+import { PRINTER_IP, PRINTER_PORT } from "./constants";
 import { parseString } from "xml2js";
 import { promisify } from "util";
 
@@ -49,51 +48,6 @@ export async function parsePrinterResponse(responseFile: string) {
     throw error;
   }
 }
-
-export function addDefaultQRCode(
-  encoder: EscPosEncoder,
-  url: string
-): EscPosEncoder {
-  return encoder.qrcode(
-    url,
-    QR_CODE_DEFAULTS.model,
-    QR_CODE_DEFAULTS.size,
-    QR_CODE_DEFAULTS.errorLevel
-  );
-}
-
-export const createFeedCutCommand = (
-  additionalFeed: number = 0
-): Uint8Array => {
-  // Constants
-  const DEFAULT_VERTICAL_MOTION_UNIT = 360; // 1/360 inch as per default GS P setting
-  const PRINT_HEAD_TO_CUTTER_DISTANCE = 15; // 15mm from print head to autocutter
-  const POST_CUT_FEED = 1; // 1mm feed after cut for best results
-  const MM_PER_INCH = 25.4;
-
-  // Convert mm to dots
-  const mmToDots = (mm: number): number =>
-    Math.round((mm * DEFAULT_VERTICAL_MOTION_UNIT) / MM_PER_INCH);
-
-  // Calculate feed amounts
-  const cutterFeed = mmToDots(PRINT_HEAD_TO_CUTTER_DISTANCE + additionalFeed);
-  const postCutFeed = mmToDots(POST_CUT_FEED);
-
-  // Prepare the command
-  const command = [
-    0x1d,
-    0x56,
-    66,
-    cutterFeed, // GS V <Function B>: Feed and partial cut
-    0x1b,
-    0x4a,
-    postCutFeed, // ESC d: Feed n dots
-  ];
-
-  return new Uint8Array(command);
-};
-
-export const feedAndCutCommand = createFeedCutCommand();
 
 export async function sendToPrinter(data: Uint8Array, debug: boolean = false) {
   return new Promise<void>((resolve, reject) => {
