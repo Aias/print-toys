@@ -42,6 +42,7 @@ export const supportedCodePages = [
 
 const defaultOptions = {
   printerModel: "epson-tm-t88vi",
+  feedBeforeCut: 7,
   imageMode: "raster",
   createCanvas,
 } as const;
@@ -55,4 +56,5 @@ export const createEncoder = (options?: any) => {
   })
     .initialize()
     .codepage("auto");
+  // .font("B")
 };

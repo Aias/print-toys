@@ -35,23 +35,23 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
   const $ = cheerio.load(html);
 
   async function processNode(node: AnyNode) {
+    const $node = $(node);
+
     if (node.type === "text") {
-      let textContent = $(node).text();
+      let textContent = $node.text();
 
-      // Apply common replacements
-      commonReplacements.forEach(({ search, replace }) => {
-        textContent = textContent.replace(search, replace);
-      });
-
-      encoder.text(textContent);
+      // Only process non-empty text nodes
+      if (textContent.trim().length > 0) {
+        // Your existing text processing logic here
+        encoder.text(`${textContent}`);
+      }
     } else if (node.type === "tag") {
       const element = $(node);
+      console.log;
       switch (node.name.toLowerCase()) {
         case "h1":
           encoder.bold(true).size(2);
-          for (const child of element.contents().get()) {
-            await processNode(child);
-          }
+          encoder.text(element.text().trim());
           encoder.bold(false).size(1);
           encoder.newline();
           break;
@@ -59,23 +59,19 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           encoder.bold(true);
           encoder.rule({ style: "double" });
           encoder.newline();
-          encoder.text(element.text().toUpperCase());
+          encoder.line(`${element.text().trim().toUpperCase()}`);
           encoder.bold(false);
-          encoder.newline();
           break;
         case "h3":
         case "h4":
         case "h5":
         case "h6":
-          encoder.bold(true).align("center").invert(true);
           encoder.newline();
-          encoder.text(" ");
-          for (const child of element.contents().get()) {
-            await processNode(child);
-          }
-          encoder.text(" ");
-          encoder.newline();
-          encoder.bold(false).align("left").invert(false);
+          encoder.bold(true).invert(true);
+          encoder.align("center");
+          encoder.line(`[ ${element.text().trim()} ]`);
+          encoder.align("left");
+          encoder.bold(false).invert(false);
           break;
         case "b":
         case "strong":
@@ -102,18 +98,8 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           break;
         case "a":
           encoder.underline(true);
-          for (const child of element.contents().get()) {
-            await processNode(child);
-          }
-          encoder.text(` [${element.attr("href") || ""}]`);
+          encoder.text(`${element.text()} [${element.attr("href") || ""}]`);
           encoder.underline(false);
-          break;
-        case "li":
-          encoder.text("- ");
-          for (const child of element.contents().get()) {
-            await processNode(child);
-          }
-          encoder.newline();
           break;
         case "br":
           encoder.newline();
@@ -136,26 +122,32 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
               }
               const { canvas, width, height } = processedImage;
               encoder.image(canvas, width, height, "floydsteinberg");
-              encoder.newline();
             }
           } catch (error) {
             console.error("Error processing image:", error);
           }
           break;
         case "blockquote":
-          encoder.align("right").font("B");
+          encoder.font("B").align("right");
           for (const child of element.contents().get()) {
             await processNode(child);
           }
-          encoder.align("left").font("A");
+          encoder.font("A").align("left");
+          break;
+        case "code":
+          encoder.font("B");
+          encoder.box(
+            {
+              paddingLeft: 2,
+              paddingRight: 2,
+              style: "single",
+              align: "left",
+            },
+            element.text().trim()
+          );
+          encoder.font("A");
           break;
         case "p":
-          encoder.newline();
-          for (const child of element.contents().get()) {
-            await processNode(child);
-          }
-          encoder.newline();
-          break;
         case "ul":
         case "ol":
           encoder.newline();
@@ -163,6 +155,15 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
             await processNode(child);
           }
           encoder.newline();
+          break;
+        case "li":
+          encoder.text("- ");
+          for (const child of element.contents().get()) {
+            await processNode(child);
+          }
+          if (element.next("li").length) {
+            encoder.newline();
+          }
           break;
         case "div":
         case "span":

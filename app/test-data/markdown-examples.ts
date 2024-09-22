@@ -26,6 +26,12 @@ Connections are either **direct** (children) - found within the book - or **indi
 
 At the core of *A Pattern Language* is the philosophy that in designing their environments people always rely on certain 'languages', which, like the languages we speak, allow them to articulate and communicate an infinite variety of designs within a formal system which gives them coherence.
 
+\`\`\`
+var x = 10;
+  console.log(x);
+	  x = 20;
+\`\`\`
+
 ---
 
 Christopher Wolfgang John Alexander (4 October 1936 – 17 March 2022) was an Austrian-born British-American architect and design theorist.`;
