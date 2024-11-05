@@ -37,5 +37,7 @@ var x = 10;
 Christopher Wolfgang John Alexander (4 October 1936 – 17 March 2022) was an Austrian-born British-American architect and design theorist.`;
 
 export const mdWithImage = `
+This is an image.
+
 ![photo](https://cdn.glass.photo/post/bb6ef35a-9242-4c23-b2f2-bf67e38dad9c/photo?auto=format&fit=max&fm=jpg&h=1024&q=90&w=1024&s=60006f195b76a908466739d4d125a3dd)
 `;

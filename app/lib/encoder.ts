@@ -49,12 +49,11 @@ const defaultOptions = {
 
 export const encoder = new ReceiptPrinterEncoder(defaultOptions);
 
-export const createEncoder = (options?: any) => {
-  return new ReceiptPrinterEncoder({
+export const createEncoder = (options?: Partial<typeof defaultOptions>) => {
+  const encoder = new ReceiptPrinterEncoder({
     ...defaultOptions,
     ...options,
-  })
-    .initialize()
-    .codepage("auto");
-  // .font("B")
+  });
+
+  return encoder.initialize().codepage("auto");
 };

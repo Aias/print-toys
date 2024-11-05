@@ -1,4 +1,4 @@
-import { useActionData, useFetcher } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { useCallback, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -9,7 +9,6 @@ interface ActionData {
 }
 
 export default function PrintImage() {
-  const actionData = useActionData<ActionData>();
   const fetcher = useFetcher<ActionData>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
