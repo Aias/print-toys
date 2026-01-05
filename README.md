@@ -10,6 +10,7 @@ Print Toys is An exploratory playground for integrating a web front-end and Node
 - XML-based communication with Epson printers
 - ESC/POS command generation and processing
 - Configuration management for print settings
+- Modern React 19 UI with shadcn/ui components (Base UI primitives)
 
 ## Setup
 
@@ -101,3 +102,27 @@ Prettier automatically respects `.gitignore`, so most generated files and build 
 ```bash
 pnpm typecheck     # Run TypeScript compiler
 ```
+
+## UI Components
+
+The project uses **shadcn/ui** with **Base UI** primitives (`@base-ui/react`) for accessible, unstyled UI components. The style preset is "base-lyra" with OKLCH colors and automatic light/dark theme support.
+
+### Adding Components
+
+To add new shadcn components:
+
+```bash
+pnpx shadcn add <component-name>
+```
+
+Examples:
+- `pnpx shadcn add button`
+- `pnpx shadcn add card`
+- `pnpx shadcn add input`
+
+Components are installed to `app/components/ui/` and use:
+- **Base UI primitives** instead of Radix UI
+- **Lucide icons** for icon components
+- **Data attributes** for styling (e.g., `data-slot`, `data-size`)
+- **No `forwardRef`** (React 19 auto-forwards refs)
+- **No `asChild` prop** on Button component

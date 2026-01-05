@@ -24,6 +24,9 @@ pnpm prisma db push         # Push schema changes to database (for development)
 pnpm prisma migrate dev     # Create and apply migrations (for production)
 pnpm prisma:studio          # Open Prisma Studio GUI
 pnpm prisma generate        # Generate Prisma Client
+
+# UI Components
+pnpx shadcn add <component> # Add shadcn/ui component (e.g., pnpx shadcn add button)
 ```
 
 ## Architecture
@@ -128,6 +131,7 @@ pnpm prisma:studio
 
 - **Node.js >=22.0.0 required** (Vite 7 requirement)
 - Uses `pnpm` as package manager (specified in `packageManager` field)
+  - `pnpm-workspace.yaml` configures build dependencies (`onlyBuiltDependencies: [msw]`)
 - Dev server uses `--host` flag to be accessible on local network (e.g., from phone via Tailscale)
 - **USB Printing**: Uses `usb` library for direct USB communication (TM-T88VI vendor ID `0x04b8`, product ID `0x0202`)
   - Native modules (`usb`, `canvas`) require compilation on first install
@@ -144,6 +148,14 @@ pnpm prisma:studio
   - Entry files use `HydratedRouter` (client) and `ServerRouter` (server) components
 - **Vite 7**: Major performance improvements, updated browser targets (Chrome 107+, Safari 16+, Firefox 104+)
 - **Tailwind CSS 4**: Uses `@import "tailwindcss"` syntax and CSS-based `@theme` configuration
+  - **shadcn/ui integration**: Imports `shadcn/tailwind.css` and `tw-animate-css` for component styling
+  - **OKLCH colors**: All color tokens use OKLCH format with `light-dark()` for automatic theme switching
+- **UI Components (shadcn/ui)**:
+  - **Base UI primitives**: Uses `@base-ui/react` instead of Radix UI (headless, unstyled primitives)
+  - **Style preset**: "base-lyra" style in `components.json`
+  - **Icon library**: Lucide icons (`lucide` package)
+  - Components in `app/components/ui/` follow shadcn conventions with data attributes for styling
+  - No `forwardRef` needed (React 19), no `asChild` prop on Button
 - **Prisma 7**: ESM-only, adapter pattern for database connections, generated client in `./generated/prisma`
 
 ## Major Stack Versions
