@@ -88,9 +88,7 @@ User Interface → Markdown/HTML → ESC/POS Binary → PostgreSQL (audit log)
 
 **Image Processing**: Images are processed through `canvas` library for dithering (Floyd-Steinberg) before thermal printing. Both URL and base64 data URIs are supported.
 
-**Event-Driven Printing**: Jobs print immediately when submitted via web UI using `createAndPrintJob()` which writes to DB then sends to USB printer in background (non-blocking). Print failures are logged server-side; jobs remain in queue for manual retry via `process-usb-queue.ts`.
-
-**Recovery Tool**: `process-usb-queue.ts` is available for manual processing of failed jobs or batch printing of pending jobs. Run with `npx tsx process-usb-queue.ts` or `--watch` flag for continuous polling.
+**Event-Driven Printing**: Jobs print immediately when submitted via web UI using `createAndPrintJob()` which writes to DB then sends to USB printer in background (non-blocking). Print failures are logged server-side. Failed jobs can be resubmitted via the web UI.
 
 ## Environment Variables
 
