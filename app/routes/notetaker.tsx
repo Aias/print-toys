@@ -1,10 +1,6 @@
 import { useState } from "react";
-import {
-  Form,
-  useSubmit,
-  useActionData,
-  SubmitOptions,
-} from "@remix-run/react";
+import { Form, useSubmit, SubmitOptions } from "react-router";
+import type { Route } from "./+types/notetaker";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { mdPatternLanguage, mdWithImage } from "~/test-data/markdown-examples";
@@ -14,12 +10,14 @@ export const action = printMarkdownAction;
 
 const submitOptions: SubmitOptions = { method: "post", encType: "text/plain" };
 
-export default function Notetaker() {
+export default function Notetaker({ actionData }: Route.ComponentProps) {
   const [markdownText, setMarkdownText] = useState("");
   const submit = useSubmit();
-  const actionData = useActionData<typeof action>();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement;
+  }) => {
     e.preventDefault();
     submit(markdownText, submitOptions);
   };
@@ -29,11 +27,11 @@ export default function Notetaker() {
   };
 
   return (
-    <div className="p-4 max-w-[720px] mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Notetaker</h1>
+    <div className="mx-auto max-w-[720px] p-4">
+      <h1 className="mb-4 text-2xl font-bold">Notetaker</h1>
 
       {/* Main content area */}
-      <Form onSubmit={handleSubmit} className="space-y-4 mb-8">
+      <Form onSubmit={handleSubmit} className="mb-8 space-y-4">
         <Textarea
           name="markdownText"
           value={markdownText}
@@ -58,7 +56,7 @@ export default function Notetaker() {
 
       {/* Testing area */}
       <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Test Prints</h2>
+        <h2 className="mb-4 text-xl font-semibold">Test Prints</h2>
         <div className="grid grid-cols-2 gap-4">
           <Button
             onClick={() => handleTestPrint(mdPatternLanguage)}

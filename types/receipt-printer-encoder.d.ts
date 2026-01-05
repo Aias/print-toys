@@ -26,7 +26,7 @@ declare module "@point-of-sale/receipt-printer-encoder" {
       input: any,
       width: number,
       height: number,
-      algorithm?: "threshold" | "bayer" | "floydsteinberg" | "atkinson"
+      algorithm?: "threshold" | "bayer" | "floydsteinberg" | "atkinson",
     ): this;
     cut(type?: "full" | "partial"): this;
     encode(format?: "array" | "commands" | "lines"): Uint8Array;

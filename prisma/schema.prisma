@@ -1,37 +1,16 @@
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL")
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 model PrintJob {
-  jobId          String   @id @default(uuid())
+  jobId          String    @id @default(uuid())
   escPosCommands Bytes
-  printed        Boolean  @default(false)
-  submitted      DateTime @default(now())
-}
-
-model Configuration {
-  id            Int       @id @default(autoincrement())
-  queueEnabled  Boolean
-  validFrom     DateTime  @default(now())
-  validTo       DateTime?
-}
-
-model PrintJobResult {
-  id                            Int      @id @default(autoincrement())
-  timestamp                     DateTime @default(now())
-  serverDirectPrintSuccess      Boolean
-  fullXml                       String
-  serverDirectPrintErrorSummary String?
-  serverDirectPrintErrorDetail  String?
-  printerDeviceId               String?
-  printerJobId                  String?
-  printerSuccess                Boolean
-  printerCode                   String?
-  printerStatus                 String?
+  printed        Boolean   @default(false)
+  submitted      DateTime  @default(now())
+  printedAt      DateTime?
 }

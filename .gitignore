@@ -42,6 +42,9 @@ pnpm-debug.log*
 # prisma
 prisma/*.db
 prisma/*.db-journal
+generated/
 
 .wrangler
-.vercel
+
+# react-router generated types
+.react-router

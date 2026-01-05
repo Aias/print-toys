@@ -1,39 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../../generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { sendToPrinter } from "../lib/helpers";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.POSTGRES_PRISMA_URL!,
+});
 
-export async function getCurrentConfiguration() {
-  const currentConfig = await prisma.configuration.findFirst({
-    where: {
-      validTo: null,
-    },
-    orderBy: {
-      validFrom: "desc",
-    },
-  });
-  return currentConfig;
-}
-
-export async function getQueueEnabled() {
-  const currentConfig = await getCurrentConfiguration();
-  return currentConfig?.queueEnabled ?? false;
-}
-
-export async function setQueueEnabled(enabled: boolean) {
-  const currentConfig = await getCurrentConfiguration();
-  if (currentConfig) {
-    await prisma.configuration.update({
-      where: { id: currentConfig.id },
-      data: { validTo: new Date(), queueEnabled: enabled },
-    });
-  }
-  await prisma.configuration.create({
-    data: {
-      queueEnabled: enabled,
-      validFrom: new Date(),
-    },
-  });
-}
+const prisma = new PrismaClient({ adapter });
 
 export async function getQueuedJobs() {
   const jobs = await prisma.printJob.findMany({
@@ -50,30 +23,40 @@ export async function getQueuedJobs() {
 export async function markJobAsPrinted(jobId: string) {
   await prisma.printJob.update({
     where: { jobId },
-    data: { printed: true },
+    data: { printed: true, printedAt: new Date() },
   });
 }
 
-export async function createPrintJob(escPosCommands: Buffer) {
-  await prisma.printJob.create({
+export async function createPrintJob(escPosCommands: Uint8Array) {
+  const job = await prisma.printJob.create({
     data: {
-      escPosCommands,
+      escPosCommands: new Uint8Array(escPosCommands),
     },
   });
+  return { jobId: job.jobId, escPosCommands };
 }
 
-export async function savePrinterResponse(response: {
-  serverDirectPrintSuccess: boolean;
-  serverDirectPrintErrorSummary?: string;
-  serverDirectPrintErrorDetail?: string;
-  printerDeviceId?: string;
-  printerJobId?: string;
-  printerSuccess: boolean;
-  printerCode?: string;
-  printerStatus?: string;
-  fullXml: string; // Add this line
-}) {
-  await prisma.printJobResult.create({
-    data: response,
+export async function printJobImmediately(
+  jobId: string,
+  escPosCommands: Uint8Array,
+) {
+  try {
+    await sendToPrinter(escPosCommands, false);
+    await markJobAsPrinted(jobId);
+    console.log(`✓ Job ${jobId} printed via USB`);
+  } catch (error) {
+    console.error(`✗ Failed to print job ${jobId}:`, error);
+    // Job remains unprinted for manual retry
+  }
+}
+
+export async function createAndPrintJob(escPosCommands: Uint8Array) {
+  const job = await createPrintJob(escPosCommands);
+
+  // Fire-and-forget: don't block response
+  printJobImmediately(job.jobId, escPosCommands).catch((err) => {
+    console.error("Background print failed:", err);
   });
+
+  return job;
 }

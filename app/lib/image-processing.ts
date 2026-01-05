@@ -21,7 +21,7 @@ const defaultAdjustments: ImageAdjustments = {
 
 async function processImage(
   image: Image,
-  adjustments: ImageAdjustments = defaultAdjustments
+  adjustments: ImageAdjustments = defaultAdjustments,
 ): Promise<ProcessedImage> {
   let { width, height } = image;
 
@@ -78,7 +78,7 @@ async function processImage(
 
 export async function urlToCanvasImage(
   url: string,
-  adjustments?: ImageAdjustments
+  adjustments?: ImageAdjustments,
 ): Promise<ProcessedImage> {
   try {
     const response = await fetch(url);
@@ -95,7 +95,7 @@ export async function urlToCanvasImage(
 
 export async function rawDataToCanvasImage(
   rawData: Buffer,
-  adjustments?: ImageAdjustments
+  adjustments?: ImageAdjustments,
 ): Promise<ProcessedImage> {
   try {
     const image = await loadImage(rawData);

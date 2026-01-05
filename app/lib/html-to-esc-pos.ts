@@ -47,7 +47,6 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
       }
     } else if (node.type === "tag") {
       const element = $(node);
-      console.log;
       switch (node.name.toLowerCase()) {
         case "h1":
           encoder.bold(true).size(2);
@@ -125,6 +124,8 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
             }
           } catch (error) {
             console.error("Error processing image:", error);
+            // Continue with rest of document - don't fail entire print job
+            encoder.line("[Image failed to load]");
           }
           break;
         case "blockquote":
@@ -143,7 +144,7 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
               style: "single",
               align: "left",
             },
-            element.text().trim()
+            element.text().trim(),
           );
           encoder.font("A");
           break;

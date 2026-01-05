@@ -7,5 +7,7 @@ export const QR_CODE_DEFAULTS = {
   errorLevel: "m",
 } as const;
 
-export const PRINTER_IP = "192.168.1.32";
-export const PRINTER_PORT = 9100;
+// USB Printer Configuration (Epson TM-T88VI)
+export const USB_VENDOR_ID = 0x04b8; // Seiko Epson Corp.
+export const USB_PRODUCT_ID = 0x0202; // TM-T88VI
+export const USB_INTERFACE_NUMBER = 0;

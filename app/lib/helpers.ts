@@ -1,99 +1,77 @@
-import * as net from "net";
-import { PRINTER_IP, PRINTER_PORT } from "./constants";
-import { parseString } from "xml2js";
-import { promisify } from "util";
-
-// Add this type definition at the top of the file
-type PrintResponseResult = {
-  PrintResponseInfo: {
-    $: { Version: string };
-    ServerDirectPrint: Array<any>;
-    ePOSPrint?: Array<any>;
-  };
-};
-
-const parseXml = promisify(parseString);
-
-export async function parsePrinterResponse(responseFile: string) {
-  try {
-    const result = (await parseXml(responseFile)) as PrintResponseResult;
-    const printResponseInfo = result.PrintResponseInfo;
-
-    if (!printResponseInfo || printResponseInfo.$.Version !== "3.00") {
-      throw new Error("Invalid or unsupported PrintResponseInfo version");
-    }
-
-    const serverDirectPrint = printResponseInfo.ServerDirectPrint[0];
-    const ePOSPrint = printResponseInfo.ePOSPrint
-      ? printResponseInfo.ePOSPrint[0]
-      : null;
-
-    return {
-      fullXml: responseFile,
-      serverDirectPrintSuccess:
-        serverDirectPrint.Response[0].$.Success === "true",
-      serverDirectPrintErrorSummary:
-        serverDirectPrint.Response[0].ErrorSummary?.[0],
-      serverDirectPrintErrorDetail:
-        serverDirectPrint.Response[0].ErrorDetail?.[0],
-      printerDeviceId: ePOSPrint?.Parameter[0].devid[0],
-      printerJobId: ePOSPrint?.Parameter[0].printjobid[0],
-      printerSuccess:
-        ePOSPrint?.PrintResponse[0].response[0].$.success === "true",
-      printerCode: ePOSPrint?.PrintResponse[0].response[0].$.code,
-      printerStatus: ePOSPrint?.PrintResponse[0].response[0].$.status,
-    };
-  } catch (error) {
-    console.error("Error parsing printer response:", error);
-    throw error;
-  }
-}
+import {
+  USB_VENDOR_ID,
+  USB_PRODUCT_ID,
+  USB_INTERFACE_NUMBER,
+} from "./constants";
+import * as usb from "usb";
 
 export async function sendToPrinter(data: Uint8Array, debug: boolean = false) {
   return new Promise<void>((resolve, reject) => {
-    const client = new net.Socket();
-    if (debug) console.log("Connecting to printer...");
+    try {
+      // Find the printer device
+      const device = usb.findByIds(USB_VENDOR_ID, USB_PRODUCT_ID);
 
-    client.connect(PRINTER_PORT, PRINTER_IP, () => {
-      if (debug) console.log("Connected to printer.");
-      client.write(data);
-      client.end();
-      resolve();
-    });
+      if (!device) {
+        reject(
+          new Error(
+            `USB printer not found (VID: ${USB_VENDOR_ID.toString(16)}, PID: ${USB_PRODUCT_ID.toString(16)})`,
+          ),
+        );
+        return;
+      }
 
-    client.on("error", (err) => {
-      reject(err);
-    });
+      if (debug) console.log("Found USB printer:", device.deviceDescriptor);
+
+      // Open the device
+      device.open();
+
+      // Get the interface
+      const iface = device.interface(USB_INTERFACE_NUMBER);
+
+      // Detach kernel driver if active (Linux/Mac may need this)
+      if (iface.isKernelDriverActive()) {
+        iface.detachKernelDriver();
+      }
+
+      // Claim the interface
+      iface.claim();
+
+      // Find the OUT endpoint (direction: host to device)
+      const endpoint = iface.endpoints.find(
+        (ep) => ep.direction === "out",
+      ) as usb.OutEndpoint;
+
+      if (!endpoint) {
+        device.close();
+        reject(new Error("OUT endpoint not found on USB printer"));
+        return;
+      }
+
+      if (debug)
+        console.log(
+          `Sending ${data.length} bytes to USB printer on endpoint ${endpoint.address}...`,
+        );
+
+      // Send data to printer
+      endpoint.transfer(Buffer.from(data), (error) => {
+        // Release interface and close device
+        try {
+          iface.release(true, () => {
+            device.close();
+          });
+        } catch (e) {
+          console.error("Error releasing USB interface:", e);
+        }
+
+        if (error) {
+          reject(error);
+        } else {
+          if (debug) console.log("USB print successful");
+          resolve();
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
   });
 }
-
-// Convert Uint8Array to Hex string
-export const uint8ArrayToHex = (content: Uint8Array) =>
-  Array.from(content)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
-    .toUpperCase();
-
-// Create a test print XML response
-export const commandsToPrintDataXML = (
-  escPosCommands: Uint8Array,
-  printJobId?: string
-) => {
-  const hexContent = uint8ArrayToHex(escPosCommands);
-  const id = printJobId || crypto.randomUUID().substring(0, 30);
-  return `<?xml version="1.0" encoding="UTF-8"?>
-  <PrintRequestInfo Version="3.00">
-    <ePOSPrint>
-      <Parameter>
-        <devid>local_printer</devid>
-        <timeout>10000</timeout>
-        <printjobid>${id}</printjobid>
-      </Parameter>
-      <PrintData>
-        <epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
-          <command>${hexContent}</command>
-        </epos-print>
-      </PrintData>
-    </ePOSPrint>
-  </PrintRequestInfo>`;
-};

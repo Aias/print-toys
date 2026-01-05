@@ -15,33 +15,89 @@ Print Toys is An exploratory playground for integrating a web front-end and Node
 
 The following setup assumes you have an Epson TM-T88VI printer already set up and connected via ethernet to your local network. Setup steps may be similar for other models, but at a minimum the printer should support Server Direct Printing for connecting to a remote host.
 
+### Prerequisites
+
+- **Node.js >=22.0.0** (required for Vite 7)
+- **PostgreSQL** running locally
+- **pnpm** package manager (v10.24.0+)
+- Modern browser (Chrome 107+, Safari 16+, Firefox 104+ for Tailwind CSS 4)
+
+### Installation
+
 1. Clone the repository:
 
-   ```
+   ```bash
    git clone https://github.com/your-username/print-toys.git
    cd print-toys
    ```
 
 2. Install dependencies:
 
-   ```
-   yarn install
-   ```
-
-3. Run Prisma migrations:
-
-   ```
-   npx prisma migrate dev
+   ```bash
+   pnpm install
    ```
 
-4. Start the development server:
+3. Create local PostgreSQL database:
 
-   ```
-   yarn dev
+   ```bash
+   psql postgres -c "CREATE DATABASE \"print-toys\";"
    ```
 
-5. Get the local network address of your server and use the Epson configuration app or the web admin interface to point Server Direct Print to `http://<network-address>:<port>/queue`.
+4. Configure environment variables in `.env`:
+
+   ```bash
+   POSTGRES_PRISMA_URL="postgresql://yourusername@localhost:5432/print-toys"
+   ```
+
+5. Push Prisma schema to database:
+
+   ```bash
+   pnpm prisma db push
+   ```
+
+6. Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+7. Get the local network address of your server and use the Epson configuration app or the web admin interface to point Server Direct Print to `http://<network-address>:<port>/queue`.
 
 ## Usage
 
 After setting up the project, you can access the various utilities through the web interface. The main entry point for print job management is the `/queue` route.
+
+## Code Quality
+
+This project uses several tools to maintain code quality:
+
+### Linting
+
+```bash
+pnpm lint          # Run ESLint
+```
+
+The project uses ESLint 9 with TypeScript, React, JSX accessibility, and import plugins configured.
+
+### Formatting
+
+```bash
+pnpm format        # Format all files with Prettier
+pnpm format:check  # Check formatting without modifying files
+```
+
+Prettier 3.7.4 is configured with standard settings:
+
+- 80 character line width
+- 2 space indentation
+- Semicolons, double quotes, trailing commas
+- LF line endings
+- **Automatic Tailwind CSS class sorting** via `prettier-plugin-tailwindcss`
+
+Prettier automatically respects `.gitignore`, so most generated files and build artifacts are excluded by default.
+
+### Type Checking
+
+```bash
+pnpm typecheck     # Run TypeScript compiler
+```

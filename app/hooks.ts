@@ -1,5 +1,5 @@
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
-import { useLoaderData, useActionData } from "@remix-run/react";
+import type { LoaderFunction, ActionFunction } from "react-router";
+import { useLoaderData, useActionData } from "react-router";
 
 export function useTypedLoaderData<T extends LoaderFunction>() {
   return useLoaderData() as unknown as Awaited<ReturnType<T>>;

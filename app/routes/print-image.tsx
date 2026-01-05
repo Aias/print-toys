@@ -1,19 +1,15 @@
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { useCallback, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-
-interface ActionData {
-  success: boolean;
-  message: string;
-}
+import type { action as printImageAction } from "./actions.print-image";
 
 export default function PrintImage() {
-  const fetcher = useFetcher<ActionData>();
+  const fetcher = useFetcher<typeof printImageAction>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
+    (event: { preventDefault: () => void; currentTarget: HTMLFormElement }) => {
       event.preventDefault();
       if (fileInputRef.current?.files?.[0]) {
         const formData = new FormData();
@@ -25,7 +21,7 @@ export default function PrintImage() {
         });
       }
     },
-    [fetcher]
+    [fetcher],
   );
 
   const handlePasteImage = useCallback(async () => {
@@ -53,8 +49,8 @@ export default function PrintImage() {
   }, [fetcher]);
 
   return (
-    <div className="p-4 max-w-[720px] mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Print Image</h1>
+    <div className="mx-auto max-w-[720px] p-4">
+      <h1 className="mb-4 text-2xl font-bold">Print Image</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center space-x-2">
           <Input
@@ -62,7 +58,7 @@ export default function PrintImage() {
             name="image"
             accept="image/*"
             required
-            className="flex-grow"
+            className="grow"
             ref={fileInputRef}
           />
           <Button type="submit">Print Image</Button>

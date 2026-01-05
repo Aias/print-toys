@@ -1,18 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Form, useSubmit, useActionData } from "@remix-run/react";
-import { json, type ActionFunctionArgs } from "@remix-run/node";
+import { Form, useSubmit, data } from "react-router";
+import type { Route } from "./+types/typewriter";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { encoder } from "~/lib/encoder";
-import { createPrintJob } from "~/api/requests";
+import { createAndPrintJob } from "~/api/requests";
 import { commonReplacements } from "~/lib/html-to-esc-pos";
 
-type ActionData =
-  | { success: true; line: string }
-  | { success: true; cut: true }
-  | { success: false };
-
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const action = formData.get("action");
   const line = formData.get("line");
@@ -23,25 +18,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       replacedLine = replacedLine.replace(search, replace);
     });
     const escPosCommands = encoder.initialize().line(replacedLine).encode();
-    await createPrintJob(Buffer.from(escPosCommands));
-    return json<ActionData>({ success: true, line: replacedLine });
+    await createAndPrintJob(escPosCommands);
+    return data({ success: true as const, line: replacedLine });
   } else if (action === "cut") {
     const escPosCommands = encoder.initialize().cut().encode();
-    await createPrintJob(Buffer.from(escPosCommands));
-    return json<ActionData>({ success: true, cut: true });
+    await createAndPrintJob(escPosCommands);
+    return data({ success: true as const, cut: true as const });
   }
 
-  return json<ActionData>({ success: false });
+  return data({ success: false as const });
 };
 
-export default function Typewriter() {
+export default function Typewriter({ actionData }: Route.ComponentProps) {
   const [line, setLine] = useState("");
   const [printedSections, setPrintedSections] = useState<string[][]>([[]]);
   const submit = useSubmit();
-  const actionData = useActionData<typeof action>();
-  const lastActionRef = useRef<ActionData | null>(null);
+  const lastActionRef = useRef<typeof actionData>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement;
+  }) => {
     e.preventDefault();
     submit(e.currentTarget, { method: "post" });
     setLine("");
@@ -66,34 +63,38 @@ export default function Typewriter() {
   }, [handleCut]);
 
   useEffect(() => {
-    if (actionData?.success && actionData !== lastActionRef.current) {
-      if ("line" in actionData) {
-        setPrintedSections((prev) => {
-          const newSections = [...prev];
-          const lastSection = newSections[newSections.length - 1];
-          if (!lastSection.includes(actionData.line)) {
-            newSections[newSections.length - 1] = [
-              ...lastSection,
-              actionData.line,
-            ];
-          }
-          return newSections;
-        });
-      } else if ("cut" in actionData) {
-        setPrintedSections((prev) => {
-          if (prev[prev.length - 1].length > 0) {
-            return [...prev, []];
-          }
-          return prev;
-        });
-      }
-      lastActionRef.current = actionData;
+    if (!actionData?.success || actionData === lastActionRef.current) {
+      return;
+    }
+
+    lastActionRef.current = actionData;
+
+    if ("line" in actionData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPrintedSections((prev) => {
+        const newSections = [...prev];
+        const lastSection = newSections[newSections.length - 1];
+        if (!lastSection.includes(actionData.line)) {
+          newSections[newSections.length - 1] = [
+            ...lastSection,
+            actionData.line,
+          ];
+        }
+        return newSections;
+      });
+    } else if ("cut" in actionData) {
+      setPrintedSections((prev) => {
+        if (prev[prev.length - 1].length > 0) {
+          return [...prev, []];
+        }
+        return prev;
+      });
     }
   }, [actionData]);
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Typewriter</h1>
+      <h1 className="mb-4 text-2xl font-bold">Typewriter</h1>
       <Form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex space-x-2">
           <Input
@@ -102,7 +103,7 @@ export default function Typewriter() {
             value={line}
             onChange={(e) => setLine(e.target.value)}
             placeholder="Type a line and press Enter"
-            className="flex-grow"
+            className="grow"
           />
           <input type="hidden" name="action" value="print" />
           <Button type="submit" className="whitespace-nowrap">
@@ -110,7 +111,7 @@ export default function Typewriter() {
           </Button>
         </div>
       </Form>
-      <Button onClick={handleCut} className="w-full mt-4">
+      <Button onClick={handleCut} className="mt-4 w-full">
         Cut Page (Cmd+Enter)
       </Button>
       {printedSections.map((section, sectionIndex) => (

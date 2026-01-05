@@ -1,17 +1,11 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { routes } from "~/lib/routes";
-import { Switch } from "~/components/ui/switch";
 
 const navItems = [{ title: "Home", route: "/" }, ...routes];
 
-interface NavigationProps {
-  queueEnabled: boolean;
-  toggleQueue: (enable: boolean) => void;
-}
-
-export function Navigation({ queueEnabled, toggleQueue }: NavigationProps) {
+export function Navigation() {
   return (
-    <nav className="flex justify-between items-center">
+    <nav>
       <ul className="flex space-x-4">
         {navItems.map((item) => (
           <li key={item.route}>
@@ -19,10 +13,6 @@ export function Navigation({ queueEnabled, toggleQueue }: NavigationProps) {
           </li>
         ))}
       </ul>
-      <div className="flex items-center space-x-2">
-        <span>Printing Enabled</span>
-        <Switch checked={queueEnabled} onCheckedChange={toggleQueue} />
-      </div>
     </nav>
   );
 }
