@@ -19,11 +19,11 @@ The following setup assumes you have an Epson TM-T88VI printer connected via USB
 
 ### Prerequisites
 
-- **Node.js >=22.0.0** (required for Vite 7)
+- **Node.js >=22.0.0** (required for Next.js 16)
 - **PostgreSQL** running locally
 - **pnpm** package manager (v10.24.0+)
 - **Epson TM-T88VI** (or compatible) connected via USB
-- Modern browser (Chrome 107+, Safari 16+, Firefox 104+ for Tailwind CSS 4)
+- Modern browser for Tailwind CSS 4 support
 - **(Optional) Tailscale** for remote access to the print server
 
 ### Installation
@@ -124,7 +124,7 @@ Logs are stored in `./logs/` directory.
 
 After setting up the project, access the web interface at:
 
-- **Development**: `http://localhost:5173` (or the Vite dev server address)
+- **Development**: `http://localhost:3000` (Next.js dev server)
 - **Production**: `http://localhost:3030`
 - **Remote (Tailscale)**: `http://your-hostname:3030` (e.g., `http://mac-mini:3030`)
 

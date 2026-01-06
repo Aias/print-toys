@@ -13,7 +13,7 @@ Not every change requires updating both files - keep each targeted for its speci
 
 ## Project Overview
 
-print-toys is a React Router v7-based web application for printing to an Epson TM-T88VI thermal printer via USB. The system receives print requests via a web interface and immediately prints them. Jobs are logged in PostgreSQL for history and audit purposes.
+print-toys is a Next.js 16-based web application for printing to an Epson TM-T88VI thermal printer via USB. The system receives print requests via a web interface and immediately prints them using Server Actions and the after() API. Jobs are logged in PostgreSQL for history and audit purposes.
 
 ## Essential Commands
 
@@ -67,7 +67,7 @@ pnpx shadcn add <component> # Add shadcn/ui component (e.g., pnpx shadcn add but
   - `printedAt`: Timestamp when job was successfully printed (null if pending/failed)
   - `submitted`: Timestamp when job was created
 - Uses local PostgreSQL database with adapter pattern
-- **Event-driven printing**: `createAndPrintJob()` writes to DB then immediately prints via USB in background
+- **Event-driven printing**: Server Actions use `after()` API to print in background after DB write
 
 **ESC/POS Generation** (`app/lib/`):
 
@@ -84,9 +84,10 @@ pnpx shadcn add <component> # Add shadcn/ui component (e.g., pnpx shadcn add but
 
 **Routes Structure**:
 
-- Routes configured in `app/routes.ts` with explicit route definitions
-- Action-only routes prefixed with `actions.` (e.g., `actions.print-markdown.ts`)
-- UI routes like `typewriter.tsx`, `notetaker.tsx` provide different print interfaces
+- File-based routing in `app/` directory using Next.js 16 App Router
+- Server Actions in `app/actions/` for print operations (`print-line.ts`, `print-markdown.ts`, `print-image.ts`)
+- UI routes: `page.tsx` files in subdirectories (typewriter, notetaker, print-image)
+- Each route has its own `layout.tsx` for metadata and optional `error.tsx` for Error Boundaries
 
 ### Data Flow Diagram
 
@@ -108,7 +109,7 @@ User Interface → Markdown/HTML → ESC/POS Binary → PostgreSQL (audit log)
 
 **Image Processing**: Images are processed through `canvas` library for dithering (Floyd-Steinberg) before thermal printing. Both URL and base64 data URIs are supported.
 
-**Event-Driven Printing**: Jobs print immediately when submitted via web UI using `createAndPrintJob()` which writes to DB then sends to USB printer in background (non-blocking). Print failures are logged server-side. Failed jobs can be resubmitted via the web UI.
+**Event-Driven Printing**: Jobs print immediately when submitted via web UI using Server Actions. Each action creates a DB record, then uses the `fireAndForget()` wrapper with Next.js 16's `after()` API to send to USB printer in background (non-blocking). Print failures are logged server-side. Error Boundaries catch and display errors gracefully.
 
 ## Environment Variables
 
@@ -147,11 +148,11 @@ pnpm prisma:studio
 
 ## Development Notes
 
-- **Node.js >=22.0.0 required** (Vite 7 requirement)
+- **Node.js >=22.0.0 required** (Next.js 16 requirement)
 - Uses `pnpm` as package manager (specified in `packageManager` field)
   - `pnpm-workspace.yaml` configures build dependencies (`onlyBuiltDependencies: [msw]`)
-- **Dev server**: Uses `--host` flag (accessible on local network, Vite dev port)
-- **Production server**: Runs on port 3030 (configurable via PORT env var in start script)
+- **Dev server**: Uses `--hostname 0.0.0.0` flag (accessible on local network, port 3000)
+- **Production server**: Runs on port 3030 via `next start -p 3030`
 - **Process management**: `ecosystem.config.cjs` configures pm2 for auto-restart and boot persistence
   - Uses fork mode (not cluster) for simpler process management
   - Logs stored in `./logs/` directory
@@ -160,23 +161,28 @@ pnpm prisma:studio
 - **Network access**: Accessible via Tailscale for remote printing (e.g., `http://mac-mini:3030` from other devices on tailnet)
 - **USB Printing**: Uses `usb` library for direct USB communication (TM-T88VI vendor ID `0x04b8`, product ID `0x0202`)
   - Native modules (`usb`, `canvas`) require compilation on first install
+  - Configured via `serverExternalPackages` in `next.config.ts`
 - **Character Encoding**: Printers use legacy codepages (CP437, Windows-1252), not full Unicode. Stick to ASCII for reliable output.
 - **Code Quality Tools**:
   - **Prettier 3.7.4**: Automatic code formatting with standard configuration
   - **prettier-plugin-tailwindcss 0.7.2**: Sorts Tailwind classes automatically
-  - **ESLint 9**: Configured with TypeScript, React, and import rules
+  - **ESLint 9**: Configured with TypeScript, React, and import rules (run via `eslint .`, not `next lint`)
   - `.prettierignore` is minimal since Prettier respects `.gitignore` automatically
 - **React 19**: Uses new ref forwarding (no `forwardRef` needed)
-- **React Router v7**: Explicit route configuration in `app/routes.ts`
-  - All types imported from `react-router` package
-  - Entry files use `HydratedRouter` (client) and `ServerRouter` (server) components
-- **Vite 7**: Major performance improvements, updated browser targets (Chrome 107+, Safari 16+, Firefox 104+)
+- **Next.js 16**: App Router with file-based routing
+  - Server Actions in `app/actions/` with "use server" directive
+  - Client Components use "use client" directive
+  - Error Boundaries via `error.tsx` files
+  - Metadata via exports in `layout.tsx` files
+  - Uses `after()` API from `next/server` for fire-and-forget operations
+  - Note: `next lint` is deprecated in Next.js 16, use `eslint` directly
 - **Tailwind CSS 4**: Uses `@import "tailwindcss"` syntax and CSS-based `@theme` configuration
+  - **PostCSS**: Uses `@tailwindcss/postcss` plugin for CSS package imports
   - **shadcn/ui integration**: Imports `shadcn/tailwind.css` and `tw-animate-css` for component styling
-  - **OKLCH colors**: All color tokens use OKLCH format with `light-dark()` for automatic theme switching
+  - **OKLCH colors**: All color tokens use OKLCH format with `:root/.dark` pattern (not `light-dark()`)
 - **UI Components (shadcn/ui)**:
   - **Base UI primitives**: Uses `@base-ui/react` instead of Radix UI (headless, unstyled primitives)
-  - **Style preset**: "base-lyra" style in `components.json`
+  - **Style preset**: "base-lyra" style in `components.json` with RSC support enabled
   - **Icon library**: Lucide icons (`lucide` package)
   - Components in `app/components/ui/` follow shadcn conventions with data attributes for styling
   - No `forwardRef` needed (React 19), no `asChild` prop on Button
@@ -185,8 +191,7 @@ pnpm prisma:studio
 ## Major Stack Versions
 
 - React 19.2.3
-- React Router 7.11.0
-- Vite 7.3.0
+- Next.js 16.1.1
 - Tailwind CSS 4.1.18
 - Prisma ORM 7.2.0
 - TypeScript 5.9.3
