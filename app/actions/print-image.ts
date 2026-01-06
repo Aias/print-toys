@@ -3,7 +3,8 @@
 import { rawDataToCanvasImage } from "@/lib/image-processing";
 import { createEncoder } from "@/lib/encoder";
 import { createPrintJob, printJobImmediately } from "@/api/requests";
-import { fireAndForget, ServerActionError } from "@/lib/server-actions";
+import { fireAndForget } from "@/lib/server-actions";
+import { ServerActionError } from "@/lib/errors";
 
 export async function printImageAction(formData: FormData) {
   const imageData = formData.get("image") as File | null;

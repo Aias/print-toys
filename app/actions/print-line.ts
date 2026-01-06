@@ -3,7 +3,8 @@
 import { encoder } from "@/lib/encoder";
 import { createPrintJob, printJobImmediately } from "@/api/requests";
 import { commonReplacements } from "@/lib/html-to-esc-pos";
-import { fireAndForget, ServerActionError } from "@/lib/server-actions";
+import { fireAndForget } from "@/lib/server-actions";
+import { ServerActionError } from "@/lib/errors";
 
 export async function printLineAction(formData: FormData) {
   const action = formData.get("action");

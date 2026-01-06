@@ -6,13 +6,18 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
     "isolatedModules": true,
     "esModuleInterop": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
@@ -24,7 +29,9 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": [
+        "./app/*"
+      ]
     },
     "plugins": [
       {
@@ -33,5 +40,8 @@
     ],
     // Next.js takes care of building everything, not tsc.
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

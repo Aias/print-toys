@@ -3,7 +3,8 @@
 import { markdown, convertUrlsToImageMarkdown } from "@/lib/markdown";
 import { htmlToEscPos } from "@/lib/html-to-esc-pos";
 import { createPrintJob, printJobImmediately } from "@/api/requests";
-import { fireAndForget, ServerActionError } from "@/lib/server-actions";
+import { fireAndForget } from "@/lib/server-actions";
+import { ServerActionError } from "@/lib/errors";
 
 export async function printMarkdownAction(markdownText: string) {
   if (!markdownText || typeof markdownText !== "string") {

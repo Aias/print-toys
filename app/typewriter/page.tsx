@@ -44,7 +44,7 @@ export default function Typewriter() {
     startTransition(async () => {
       try {
         const result = await printLineAction(formData);
-        if (result.success && "line" in result) {
+        if (result.success && "line" in result && result.line) {
           setPrintedSections((prev) => {
             const newSections = [...prev];
             newSections[newSections.length - 1] = [
