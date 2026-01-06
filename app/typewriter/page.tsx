@@ -102,6 +102,7 @@ export default function Typewriter() {
             placeholder="Type a line and press Enter"
             className="grow"
             disabled={isPending}
+            autoComplete="off"
           />
           <Button type="submit" className="whitespace-nowrap" disabled={isPending}>
             {isPending ? "Printing..." : "Print Line"}
