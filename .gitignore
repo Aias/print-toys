@@ -16,7 +16,7 @@ node_modules
 
 # build output
 dist/
-/build
+.next/
 public/build
 
 # dependencies
@@ -46,6 +46,3 @@ prisma/*.db-journal
 generated/
 
 .wrangler
-
-# react-router generated types
-.react-router
