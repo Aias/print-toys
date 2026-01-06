@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
@@ -6,6 +7,10 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { routes } from "@/lib/routes";
+
+export const metadata: Metadata = {
+  title: "Home - Print Toys",
+};
 
 export default function Index() {
   return (
@@ -15,7 +20,7 @@ export default function Index() {
         {routes.map((experiment) => (
           <Link
             key={experiment.route}
-            to={experiment.route}
+            href={experiment.route}
             className="no-underline"
           >
             <Card className="transition-shadow duration-300 hover:shadow-lg">

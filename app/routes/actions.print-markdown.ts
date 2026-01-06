@@ -1,8 +1,8 @@
 import { data } from "react-router";
 import type { Route } from "./+types/actions.print-markdown";
-import { markdown, convertUrlsToImageMarkdown } from "~/lib/markdown";
-import { htmlToEscPos } from "~/lib/html-to-esc-pos";
-import { createAndPrintJob } from "~/api/requests";
+import { markdown, convertUrlsToImageMarkdown } from "@/lib/markdown";
+import { htmlToEscPos } from "@/lib/html-to-esc-pos";
+import { createAndPrintJob } from "@/api/requests";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const markdownText = await request.text();

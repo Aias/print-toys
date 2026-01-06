@@ -1,8 +1,8 @@
 import { data } from "react-router";
 import type { Route } from "./+types/actions.print-image";
-import { rawDataToCanvasImage } from "~/lib/image-processing";
-import { createEncoder } from "~/lib/encoder";
-import { createAndPrintJob } from "~/api/requests";
+import { rawDataToCanvasImage } from "@/lib/image-processing";
+import { createEncoder } from "@/lib/encoder";
+import { createAndPrintJob } from "@/api/requests";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   try {

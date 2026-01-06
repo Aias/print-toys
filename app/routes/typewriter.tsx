@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Form, useSubmit, data } from "react-router";
 import type { Route } from "./+types/typewriter";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { encoder } from "~/lib/encoder";
-import { createAndPrintJob } from "~/api/requests";
-import { commonReplacements } from "~/lib/html-to-esc-pos";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { encoder } from "@/lib/encoder";
+import { createAndPrintJob } from "@/api/requests";
+import { commonReplacements } from "@/lib/html-to-esc-pos";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();

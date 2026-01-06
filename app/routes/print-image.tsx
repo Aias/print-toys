@@ -1,7 +1,7 @@
 import { useFetcher } from "react-router";
 import { useCallback, useRef } from "react";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { action as printImageAction } from "./actions.print-image";
 
 export default function PrintImage() {

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Form, useSubmit, SubmitOptions } from "react-router";
 import type { Route } from "./+types/notetaker";
-import { Button } from "~/components/ui/button";
-import { Textarea } from "~/components/ui/textarea";
-import { mdPatternLanguage, mdWithImage } from "~/test-data/markdown-examples";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { mdPatternLanguage, mdWithImage } from "@/test-data/markdown-examples";
 import { action as printMarkdownAction } from "./actions.print-markdown";
 
 export const action = printMarkdownAction;
