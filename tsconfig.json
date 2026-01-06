@@ -6,11 +6,11 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx",
-    ".react-router/types/**/*"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["@react-router/node", "vite/client"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
@@ -22,12 +22,18 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "@/*": ["./app/*"]
     },
-    "rootDirs": [".", "./.react-router/types"],
-    // Vite takes care of building everything, not tsc.
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    // Next.js takes care of building everything, not tsc.
     "noEmit": true
-  }
+  },
+  "exclude": ["node_modules"]
 }

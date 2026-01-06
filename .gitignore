@@ -16,8 +16,9 @@ node_modules
 
 # build output
 dist/
-/build
+.next/
 public/build
+build/
 
 # dependencies
 node_modules/
@@ -47,5 +48,5 @@ generated/
 
 .wrangler
 
-# react-router generated types
-.react-router
+tsconfig.tsbuildinfo
+next-env.d.ts

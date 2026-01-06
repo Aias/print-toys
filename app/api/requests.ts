@@ -50,14 +50,3 @@ export async function printJobImmediately(
     // Job remains unprinted for manual retry
   }
 }
-
-export async function createAndPrintJob(escPosCommands: Uint8Array) {
-  const job = await createPrintJob(escPosCommands);
-
-  // Fire-and-forget: don't block response
-  printJobImmediately(job.jobId, escPosCommands).catch((err) => {
-    console.error("Background print failed:", err);
-  });
-
-  return job;
-}

@@ -103,13 +103,11 @@ module.exports = [
   {
     files: [
       "eslint.config.cjs",
-      "vite.config.ts",
+      "next.config.ts",
       "prisma.config.ts",
-      "app/entry.server.tsx",
       "app/api/**/*.ts",
       "app/lib/**/*.ts",
-      "app/routes/actions.*.ts",
-      "app/routes/queue.ts",
+      "app/actions/**/*.ts",
       "test-*.ts",
       "process-*.ts",
     ],
@@ -122,12 +120,6 @@ module.exports = [
 
   // Ignore generated files
   {
-    ignores: [
-      "docs/**",
-      "generated/**",
-      "build/**",
-      "types/**",
-      ".react-router/**",
-    ],
+    ignores: ["docs/**", "generated/**", "build/**", "types/**", ".next/**"],
   },
 ];
