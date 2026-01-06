@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Print lines of text one at a time",
 };
 
-export default function TypewriterLayout({ children }: { children: ReactNode }) {
+export default function TypewriterLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return children;
 }

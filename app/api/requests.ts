@@ -50,4 +50,3 @@ export async function printJobImmediately(
     // Job remains unprinted for manual retry
   }
 }
-

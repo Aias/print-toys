@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useOptimistic, useTransition } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useOptimistic,
+  useTransition,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { printLineAction } from "@/actions/print-line";
@@ -103,7 +109,11 @@ export default function Typewriter() {
             className="grow"
             autoComplete="off"
           />
-          <Button type="submit" className="whitespace-nowrap" disabled={isPending}>
+          <Button
+            type="submit"
+            className="whitespace-nowrap"
+            disabled={isPending}
+          >
             {isPending ? "Printing..." : "Print Line"}
           </Button>
         </div>
@@ -116,7 +126,7 @@ export default function Typewriter() {
           {sectionIndex > 0 && <hr className="my-4 border-gray-300" />}
           {section.length > 0 && (
             <div>
-              <pre className="whitespace-pre-wrap font-mono">
+              <pre className="font-mono whitespace-pre-wrap">
                 {section.join("\n")}
               </pre>
             </div>

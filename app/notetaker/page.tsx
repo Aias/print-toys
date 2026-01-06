@@ -4,10 +4,7 @@ import React, { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { printMarkdownAction } from "@/actions/print-markdown";
-import {
-  mdPatternLanguage,
-  mdWithImage,
-} from "@/test-data/markdown-examples";
+import { mdPatternLanguage, mdWithImage } from "@/test-data/markdown-examples";
 
 export default function Notetaker() {
   const [markdownText, setMarkdownText] = useState("");
@@ -37,9 +34,7 @@ export default function Notetaker() {
         setMessage({
           type: "error",
           text:
-            error instanceof Error
-              ? error.message
-              : "Failed to print markdown",
+            error instanceof Error ? error.message : "Failed to print markdown",
         });
       }
     });
@@ -58,8 +53,7 @@ export default function Notetaker() {
       } catch (error) {
         setMessage({
           type: "error",
-          text:
-            error instanceof Error ? error.message : "Failed to print test",
+          text: error instanceof Error ? error.message : "Failed to print test",
         });
       }
     });

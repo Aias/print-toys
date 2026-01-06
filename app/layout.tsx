@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}
       >
-        <header className="border-b bg-muted p-4">
+        <header className="bg-muted border-b p-4">
           <Navigation />
         </header>
         <main className="flex-1">{children}</main>

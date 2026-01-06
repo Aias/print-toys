@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Print images from clipboard or file upload",
 };
 
-export default function PrintImageLayout({ children }: { children: ReactNode }) {
+export default function PrintImageLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return children;
 }

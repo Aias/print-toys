@@ -111,7 +111,11 @@ export default function PrintImage() {
           </Button>
         </div>
       </form>
-      <Button onClick={handlePasteImage} className="mt-4 w-full" disabled={isPending}>
+      <Button
+        onClick={handlePasteImage}
+        className="mt-4 w-full"
+        disabled={isPending}
+      >
         Print Clipboard Image
       </Button>
       {message && (

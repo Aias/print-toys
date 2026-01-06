@@ -120,12 +120,6 @@ module.exports = [
 
   // Ignore generated files
   {
-    ignores: [
-      "docs/**",
-      "generated/**",
-      "build/**",
-      "types/**",
-      ".next/**",
-    ],
+    ignores: ["docs/**", "generated/**", "build/**", "types/**", ".next/**"],
   },
 ];
