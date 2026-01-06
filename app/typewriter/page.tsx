@@ -35,12 +35,14 @@ export default function Typewriter() {
     formData.set("action", "print");
     formData.set("line", line);
 
-    // Optimistic update
-    addOptimisticUpdate(line);
+    const lineToSubmit = line;
     setLine("");
 
-    // Server action
+    // Server action with optimistic update
     startTransition(async () => {
+      // Optimistic update
+      addOptimisticUpdate(lineToSubmit);
+
       const result = await printLineAction(formData);
       if (result.success && "line" in result && result.line) {
         setPrintedSections((prev) => {
@@ -59,10 +61,10 @@ export default function Typewriter() {
     const formData = new FormData();
     formData.set("action", "cut");
 
-    // Optimistic update
-    addOptimisticUpdate({ type: "cut" });
-
     startTransition(async () => {
+      // Optimistic update
+      addOptimisticUpdate({ type: "cut" });
+
       const result = await printLineAction(formData);
       if (result.success && "cut" in result) {
         setPrintedSections((prev) => {
