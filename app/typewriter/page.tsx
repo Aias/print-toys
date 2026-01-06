@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useOptimistic, useTransition } from "react";
+import React, { useState, useCallback, useEffect, useOptimistic, useTransition, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { printLineAction } from "@/actions/print-line";
@@ -26,6 +26,7 @@ export default function Typewriter() {
     },
   );
   const [isPending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,6 +38,11 @@ export default function Typewriter() {
 
     const lineToSubmit = line;
     setLine("");
+
+    // Refocus input after clearing
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
 
     // Server action with optimistic update
     startTransition(async () => {
@@ -95,6 +101,7 @@ export default function Typewriter() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex space-x-2">
           <Input
+            ref={inputRef}
             type="text"
             name="line"
             value={line}
