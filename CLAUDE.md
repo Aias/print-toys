@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation Maintenance
+
+**Important**: When the user refers to "the docs", this typically means both `README.md` and `CLAUDE.md`. These files serve different audiences but must be kept in sync as the application evolves:
+
+- **README.md**: User-facing documentation for setup, usage, and features
+- **CLAUDE.md**: Technical reference for AI assistants with architecture details and development notes
+
+Not every change requires updating both files - keep each targeted for its specific use case. However, both should be continuously maintained to reflect the current state of the application.
+
 ## Project Overview
 
 print-toys is a React Router v7-based web application for printing to an Epson TM-T88VI thermal printer via USB. The system receives print requests via a web interface and immediately prints them. Jobs are logged in PostgreSQL for history and audit purposes.
@@ -11,7 +20,15 @@ print-toys is a React Router v7-based web application for printing to an Epson T
 ```bash
 # Development
 pnpm dev                    # Start dev server with --host flag (accessible on local network)
+
+# Production
 pnpm build                  # Build for production
+pnpm start                  # Start production server on port 3030
+
+# pm2 (process management)
+pm2 start ecosystem.config.cjs  # Start with pm2 for auto-restart and boot persistence
+pm2 logs print-toys             # View application logs
+pm2 restart print-toys          # Restart the application
 
 # Code Quality
 pnpm typecheck              # Run TypeScript type checking
@@ -100,6 +117,7 @@ Required in `.env`:
 - `POSTGRES_PRISMA_URL`: PostgreSQL connection string for Prisma (e.g., `postgresql://username@localhost:5432/print-toys`)
   - Used by `prisma.config.ts` for migrations and schema operations
   - Also passed to `@prisma/adapter-pg` for runtime connections
+  - **Production**: Requires `import "dotenv/config"` in `app/api/requests.ts` to load `.env` file (dev mode handles this automatically)
 
 ## Database Setup (Prisma 7)
 
@@ -132,10 +150,16 @@ pnpm prisma:studio
 - **Node.js >=22.0.0 required** (Vite 7 requirement)
 - Uses `pnpm` as package manager (specified in `packageManager` field)
   - `pnpm-workspace.yaml` configures build dependencies (`onlyBuiltDependencies: [msw]`)
-- Dev server uses `--host` flag to be accessible on local network (e.g., from phone via Tailscale)
+- **Dev server**: Uses `--host` flag (accessible on local network, Vite dev port)
+- **Production server**: Runs on port 3030 (configurable via PORT env var in start script)
+- **Process management**: `ecosystem.config.cjs` configures pm2 for auto-restart and boot persistence
+  - Uses fork mode (not cluster) for simpler process management
+  - Logs stored in `./logs/` directory
+  - 512MB memory limit with auto-restart
+  - Requires `dotenv/config` import in `app/api/requests.ts` for production env vars
+- **Network access**: Accessible via Tailscale for remote printing (e.g., `http://mac-mini:3030` from other devices on tailnet)
 - **USB Printing**: Uses `usb` library for direct USB communication (TM-T88VI vendor ID `0x04b8`, product ID `0x0202`)
   - Native modules (`usb`, `canvas`) require compilation on first install
-  - Test with: `npx tsx test-usb-print.ts`
 - **Character Encoding**: Printers use legacy codepages (CP437, Windows-1252), not full Unicode. Stick to ASCII for reliable output.
 - **Code Quality Tools**:
   - **Prettier 3.7.4**: Automatic code formatting with standard configuration

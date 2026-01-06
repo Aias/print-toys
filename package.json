@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "postinstall": "prisma generate",
     "prisma:studio": "prisma studio",
-    "start": "react-router-serve build",
+    "start": "PORT=3030 react-router-serve build/server/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {
