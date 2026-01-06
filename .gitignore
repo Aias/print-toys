@@ -46,3 +46,5 @@ prisma/*.db-journal
 generated/
 
 .wrangler
+
+tsconfig.tsbuildinfo
