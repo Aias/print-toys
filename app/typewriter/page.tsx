@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useOptimistic, useTransition } from "react";
-import type { Metadata } from "next";
+import React, { useState, useCallback, useEffect, useOptimistic, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { printLineAction } from "@/actions/print-line";
@@ -42,21 +41,16 @@ export default function Typewriter() {
 
     // Server action
     startTransition(async () => {
-      try {
-        const result = await printLineAction(formData);
-        if (result.success && "line" in result && result.line) {
-          setPrintedSections((prev) => {
-            const newSections = [...prev];
-            newSections[newSections.length - 1] = [
-              ...newSections[newSections.length - 1],
-              result.line,
-            ];
-            return newSections;
-          });
-        }
-      } catch (error) {
-        // Error will be caught by Error Boundary
-        throw error;
+      const result = await printLineAction(formData);
+      if (result.success && "line" in result && result.line) {
+        setPrintedSections((prev) => {
+          const newSections = [...prev];
+          newSections[newSections.length - 1] = [
+            ...newSections[newSections.length - 1],
+            result.line,
+          ];
+          return newSections;
+        });
       }
     });
   };
@@ -69,21 +63,17 @@ export default function Typewriter() {
     addOptimisticUpdate({ type: "cut" });
 
     startTransition(async () => {
-      try {
-        const result = await printLineAction(formData);
-        if (result.success && "cut" in result) {
-          setPrintedSections((prev) => {
-            if (prev[prev.length - 1].length > 0) {
-              return [...prev, []];
-            }
-            return prev;
-          });
-        }
-      } catch (error) {
-        throw error;
+      const result = await printLineAction(formData);
+      if (result.success && "cut" in result) {
+        setPrintedSections((prev) => {
+          if (prev[prev.length - 1].length > 0) {
+            return [...prev, []];
+          }
+          return prev;
+        });
       }
     });
-  }, []);
+  }, [addOptimisticUpdate]);
 
   // Keyboard shortcut for cut (Cmd+Enter)
   useEffect(() => {
