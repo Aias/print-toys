@@ -135,6 +135,24 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           }
           encoder.font("A").align("left");
           break;
+        case "pre": {
+          const text = element.text().replace(/^\n|\n$/g, "");
+          const lines = text.split("\n");
+
+          encoder.font("B");
+          // ESC 3 n: set line spacing to 20 dots (17-dot glyph + 3-dot gap)
+          encoder.raw([0x1b, 0x33, 20]);
+
+          for (const line of lines) {
+            encoder.raw(Array.from(new TextEncoder().encode(line)));
+            encoder.newline();
+          }
+
+          // ESC 2: reset default line spacing
+          encoder.raw([0x1b, 0x32]);
+          encoder.font("A");
+          break;
+        }
         case "code":
           encoder.font("B");
           encoder.box(
