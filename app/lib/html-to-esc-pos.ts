@@ -144,7 +144,18 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
           encoder.raw([0x1b, 0x33, 20]);
 
           for (const line of lines) {
-            encoder.raw(Array.from(new TextEncoder().encode(line)));
+            const leadingWhitespace = line.match(/^[ \t]+/)?.[0] ?? "";
+            if (leadingWhitespace.length > 0) {
+              encoder.raw(
+                Array.from(leadingWhitespace, (char) => char.charCodeAt(0)),
+              );
+            }
+
+            const remainingText = line.slice(leadingWhitespace.length);
+            if (remainingText.length > 0) {
+              encoder.text(remainingText);
+            }
+
             encoder.newline();
           }
 
@@ -199,5 +210,5 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
     await processNode(node);
   }
 
-  return encoder.cut().encode();
+  return encoder.encode();
 }
