@@ -2,6 +2,7 @@
 
 import { markdown, convertUrlsToImageMarkdown } from "@/lib/markdown";
 import { htmlToEscPos } from "@/lib/html-to-esc-pos";
+import { createEncoder } from "@/lib/encoder";
 import { createPrintJob, printJobImmediately } from "@/api/requests";
 import { fireAndForget } from "@/lib/server-actions";
 import { ServerActionError } from "@/lib/errors";
@@ -12,7 +13,11 @@ export async function printMarkdownAction(markdownText: string) {
   }
 
   const html = await markdown.parse(convertUrlsToImageMarkdown(markdownText));
-  const escPosCommands = await htmlToEscPos(html);
+  const content = await htmlToEscPos(html);
+  const cut = createEncoder().cut().encode();
+  const escPosCommands = new Uint8Array(content.length + cut.length);
+  escPosCommands.set(content);
+  escPosCommands.set(cut, content.length);
 
   // Create DB record
   const job = await createPrintJob(escPosCommands);
