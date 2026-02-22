@@ -1,6 +1,6 @@
-import { describe, expect, test } from "vitest";
-import { htmlToEscPos } from "./html-to-esc-pos";
-import { markdown } from "./markdown";
+import { describe, expect, test } from 'vitest';
+import { htmlToEscPos } from './html-to-esc-pos';
+import { markdown } from './markdown';
 
 /** Search for an ASCII string inside a Uint8Array of ESC/POS bytes. */
 function containsAscii(bytes: Uint8Array, needle: string): boolean {
@@ -14,41 +14,41 @@ function containsAscii(bytes: Uint8Array, needle: string): boolean {
   return false;
 }
 
-describe("htmlToEscPos", () => {
-  describe("pre (fenced code blocks)", () => {
-    test("preserves leading whitespace", async () => {
-      const md = "```\n    hello\n        indented\n```";
+describe('htmlToEscPos', () => {
+  describe('pre (fenced code blocks)', () => {
+    test('preserves leading whitespace', async () => {
+      const md = '```\n    hello\n        indented\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
-      expect(containsIndentedLine(bytes, "    hello")).toBe(true);
-      expect(containsIndentedLine(bytes, "        indented")).toBe(true);
+      expect(containsIndentedLine(bytes, '    hello')).toBe(true);
+      expect(containsIndentedLine(bytes, '        indented')).toBe(true);
     });
 
-    test("preserves multiple indent levels", async () => {
-      const md = "```\nroot\n  two\n    four\n      six\n```";
+    test('preserves multiple indent levels', async () => {
+      const md = '```\nroot\n  two\n    four\n      six\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
-      expect(containsIndentedLine(bytes, "root")).toBe(true);
-      expect(containsIndentedLine(bytes, "  two")).toBe(true);
-      expect(containsIndentedLine(bytes, "    four")).toBe(true);
-      expect(containsIndentedLine(bytes, "      six")).toBe(true);
+      expect(containsIndentedLine(bytes, 'root')).toBe(true);
+      expect(containsIndentedLine(bytes, '  two')).toBe(true);
+      expect(containsIndentedLine(bytes, '    four')).toBe(true);
+      expect(containsIndentedLine(bytes, '      six')).toBe(true);
     });
 
-    test("preserves ASCII art characters", async () => {
-      const art = "  /\\\n / \\\n/____\\";
-      const md = "```\n" + art + "\n```";
+    test('preserves ASCII art characters', async () => {
+      const art = '  /\\\n / \\\n/____\\';
+      const md = '```\n' + art + '\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
-      expect(containsIndentedLine(bytes, "  /\\")).toBe(true);
-      expect(containsIndentedLine(bytes, " / \\")).toBe(true);
-      expect(containsIndentedLine(bytes, "/____\\")).toBe(true);
+      expect(containsIndentedLine(bytes, '  /\\')).toBe(true);
+      expect(containsIndentedLine(bytes, ' / \\')).toBe(true);
+      expect(containsIndentedLine(bytes, '/____\\')).toBe(true);
     });
 
-    test("sets Font B (ESC ! 0x01) for code blocks", async () => {
-      const md = "```\nhello\n```";
+    test('sets Font B (ESC ! 0x01) for code blocks', async () => {
+      const md = '```\nhello\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
@@ -57,8 +57,8 @@ describe("htmlToEscPos", () => {
       expect(hasFontB).toBe(true);
     });
 
-    test("sets tight line spacing (ESC 3 20)", async () => {
-      const md = "```\nline1\nline2\n```";
+    test('sets tight line spacing (ESC 3 20)', async () => {
+      const md = '```\nline1\nline2\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
@@ -67,8 +67,8 @@ describe("htmlToEscPos", () => {
       expect(containsEscSequence(bytes, [0x1b, 0x32])).toBe(true);
     });
 
-    test("encodes non-ASCII using printer codepage bytes", async () => {
-      const md = "```\ncafe é\n```";
+    test('encodes non-ASCII using printer codepage bytes', async () => {
+      const md = '```\ncafe é\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
@@ -76,21 +76,14 @@ describe("htmlToEscPos", () => {
       expect(containsEscSequence(bytes, [0xc3, 0xa9])).toBe(false);
     });
 
-    test("resets line spacing after writing code block content", async () => {
-      const md = "```\nline1\nline2\n```";
+    test('resets line spacing after writing code block content', async () => {
+      const md = '```\nline1\nline2\n```';
       const html = await markdown.parse(md);
       const bytes = await htmlToEscPos(html);
 
       const setLineSpacingIndex = findSequenceIndex(bytes, [0x1b, 0x33, 20]);
-      const line2Index = findSequenceIndex(
-        bytes,
-        Array.from(new TextEncoder().encode("line2")),
-      );
-      const resetLineSpacingIndex = findSequenceIndex(
-        bytes,
-        [0x1b, 0x32],
-        setLineSpacingIndex + 1,
-      );
+      const line2Index = findSequenceIndex(bytes, Array.from(new TextEncoder().encode('line2')));
+      const resetLineSpacingIndex = findSequenceIndex(bytes, [0x1b, 0x32], setLineSpacingIndex + 1);
 
       expect(setLineSpacingIndex).toBeGreaterThanOrEqual(0);
       expect(line2Index).toBeGreaterThan(setLineSpacingIndex);
@@ -141,11 +134,7 @@ function containsIndentedLine(bytes: Uint8Array, line: string): boolean {
   return false;
 }
 
-function findSequenceIndex(
-  bytes: Uint8Array,
-  seq: number[],
-  fromIndex = 0,
-): number {
+function findSequenceIndex(bytes: Uint8Array, seq: number[], fromIndex = 0): number {
   outer: for (let i = 0; i <= bytes.length - seq.length; i++) {
     if (i < fromIndex) continue;
     for (let j = 0; j < seq.length; j++) {

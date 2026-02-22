@@ -1,48 +1,24 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 :root {
   color-scheme: light dark;
   --background: light-dark(oklch(1 0 0), oklch(0.147 0.004 49.25));
-  --foreground: light-dark(
-    oklch(0.147 0.004 49.25),
-    oklch(0.985 0.001 106.423)
-  );
+  --foreground: light-dark(oklch(0.147 0.004 49.25), oklch(0.985 0.001 106.423));
   --card: light-dark(oklch(1 0 0), oklch(0.216 0.006 56.043));
-  --card-foreground: light-dark(
-    oklch(0.147 0.004 49.25),
-    oklch(0.985 0.001 106.423)
-  );
+  --card-foreground: light-dark(oklch(0.147 0.004 49.25), oklch(0.985 0.001 106.423));
   --popover: light-dark(oklch(1 0 0), oklch(0.216 0.006 56.043));
-  --popover-foreground: light-dark(
-    oklch(0.147 0.004 49.25),
-    oklch(0.985 0.001 106.423)
-  );
+  --popover-foreground: light-dark(oklch(0.147 0.004 49.25), oklch(0.985 0.001 106.423));
   --primary: light-dark(oklch(0.216 0.006 56.043), oklch(0.923 0.003 48.717));
-  --primary-foreground: light-dark(
-    oklch(0.985 0.001 106.423),
-    oklch(0.216 0.006 56.043)
-  );
+  --primary-foreground: light-dark(oklch(0.985 0.001 106.423), oklch(0.216 0.006 56.043));
   --secondary: light-dark(oklch(0.97 0.001 106.424), oklch(0.268 0.007 34.298));
-  --secondary-foreground: light-dark(
-    oklch(0.216 0.006 56.043),
-    oklch(0.985 0.001 106.423)
-  );
+  --secondary-foreground: light-dark(oklch(0.216 0.006 56.043), oklch(0.985 0.001 106.423));
   --muted: light-dark(oklch(0.97 0.001 106.424), oklch(0.268 0.007 34.298));
-  --muted-foreground: light-dark(
-    oklch(0.553 0.013 58.071),
-    oklch(0.709 0.01 56.259)
-  );
+  --muted-foreground: light-dark(oklch(0.553 0.013 58.071), oklch(0.709 0.01 56.259));
   --accent: light-dark(oklch(0.97 0.001 106.424), oklch(0.268 0.007 34.298));
-  --accent-foreground: light-dark(
-    oklch(0.216 0.006 56.043),
-    oklch(0.985 0.001 106.423)
-  );
-  --destructive: light-dark(
-    oklch(0.577 0.245 27.325),
-    oklch(0.704 0.191 22.216)
-  );
+  --accent-foreground: light-dark(oklch(0.216 0.006 56.043), oklch(0.985 0.001 106.423));
+  --destructive: light-dark(oklch(0.577 0.245 27.325), oklch(0.704 0.191 22.216));
   --border: light-dark(oklch(0.923 0.003 48.717), oklch(1 0 0 / 10%));
   --input: light-dark(oklch(0.923 0.003 48.717), oklch(1 0 0 / 15%));
   --ring: light-dark(oklch(0.709 0.01 56.259), oklch(0.553 0.013 58.071));
@@ -53,31 +29,13 @@
   --chart-5: light-dark(oklch(0.769 0.188 70.08), oklch(0.645 0.246 16.439));
   --radius: 0.625rem;
   --sidebar: light-dark(oklch(0.985 0.001 106.423), oklch(0.216 0.006 56.043));
-  --sidebar-foreground: light-dark(
-    oklch(0.147 0.004 49.25),
-    oklch(0.985 0.001 106.423)
-  );
-  --sidebar-primary: light-dark(
-    oklch(0.216 0.006 56.043),
-    oklch(0.488 0.243 264.376)
-  );
-  --sidebar-primary-foreground: light-dark(
-    oklch(0.985 0.001 106.423),
-    oklch(0.985 0.001 106.423)
-  );
-  --sidebar-accent: light-dark(
-    oklch(0.97 0.001 106.424),
-    oklch(0.268 0.007 34.298)
-  );
-  --sidebar-accent-foreground: light-dark(
-    oklch(0.216 0.006 56.043),
-    oklch(0.985 0.001 106.423)
-  );
+  --sidebar-foreground: light-dark(oklch(0.147 0.004 49.25), oklch(0.985 0.001 106.423));
+  --sidebar-primary: light-dark(oklch(0.216 0.006 56.043), oklch(0.488 0.243 264.376));
+  --sidebar-primary-foreground: light-dark(oklch(0.985 0.001 106.423), oklch(0.985 0.001 106.423));
+  --sidebar-accent: light-dark(oklch(0.97 0.001 106.424), oklch(0.268 0.007 34.298));
+  --sidebar-accent-foreground: light-dark(oklch(0.216 0.006 56.043), oklch(0.985 0.001 106.423));
   --sidebar-border: light-dark(oklch(0.923 0.003 48.717), oklch(1 0 0 / 10%));
-  --sidebar-ring: light-dark(
-    oklch(0.709 0.01 56.259),
-    oklch(0.553 0.013 58.071)
-  );
+  --sidebar-ring: light-dark(oklch(0.709 0.01 56.259), oklch(0.553 0.013 58.071));
 }
 
 @theme inline {

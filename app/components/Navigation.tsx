@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { routes } from "@/lib/routes";
+import Link from 'next/link';
+import { routes } from '@/lib/routes';
 
-const navItems = [{ title: "Home", route: "/" }, ...routes];
+const navItems = [{ title: 'Home', route: '/' }, ...routes];
 
 export function Navigation() {
   return (

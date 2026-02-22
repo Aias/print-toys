@@ -31,9 +31,11 @@ pm2 logs print-toys             # View application logs
 pm2 restart print-toys          # Restart the application
 
 # Code Quality
-pnpm typecheck              # Run TypeScript type checking
-pnpm lint                   # Run ESLint
-pnpm format                 # Format code with Prettier + Tailwind class sorting
+pnpm check                  # Run all checks (lint + typecheck + format)
+pnpm typecheck              # Run type checking (tsgo --noEmit)
+pnpm lint                   # Run oxlint with auto-fix and type-aware rules
+pnpm lint:check             # Run oxlint without auto-fix (CI mode)
+pnpm format                 # Format code with oxfmt (Tailwind class sorting + import sorting)
 pnpm format:check           # Check formatting without modifying files
 
 # Database
@@ -164,10 +166,10 @@ pnpm prisma:studio
   - Configured via `serverExternalPackages` in `next.config.ts`
 - **Character Encoding**: Printers use legacy codepages (CP437, Windows-1252), not full Unicode. Stick to ASCII for reliable output.
 - **Code Quality Tools**:
-  - **Prettier 3.7.4**: Automatic code formatting with standard configuration
-  - **prettier-plugin-tailwindcss 0.7.2**: Sorts Tailwind classes automatically
-  - **ESLint 9**: Configured with TypeScript, React, and import rules (run via `eslint .`, not `next lint`)
-  - `.prettierignore` is minimal since Prettier respects `.gitignore` automatically
+  - **oxfmt 0.34.0**: Code formatting with Tailwind class sorting and import sorting (config: `.oxfmtrc.json`)
+  - **oxlint 1.49.0**: Linting with type-aware rules via `oxlint-tsgolint` (config: `oxlint.config.ts`)
+  - **tsgo** (via `@typescript/native-preview`): Native TypeScript compiler for type checking
+  - `pnpm check` runs all three: lint, typecheck, format
 - **React 19**: Uses new ref forwarding (no `forwardRef` needed)
 - **Next.js 16**: App Router with file-based routing
   - Server Actions in `app/actions/` with "use server" directive
@@ -175,7 +177,7 @@ pnpm prisma:studio
   - Error Boundaries via `error.tsx` files
   - Metadata via exports in `layout.tsx` files
   - Uses `after()` API from `next/server` for fire-and-forget operations
-  - Note: `next lint` is deprecated in Next.js 16, use `eslint` directly
+  - Uses tsgo for type checking; tsc available as fallback
 - **Tailwind CSS 4**: Uses `@import "tailwindcss"` syntax and CSS-based `@theme` configuration
   - **PostCSS**: Uses `@tailwindcss/postcss` plugin for CSS package imports
   - **shadcn/ui integration**: Imports `shadcn/tailwind.css` and `tw-animate-css` for component styling
@@ -194,5 +196,7 @@ pnpm prisma:studio
 - Next.js 16.1.1
 - Tailwind CSS 4.1.18
 - Prisma ORM 7.2.0
-- TypeScript 5.9.3
+- TypeScript 5.9.3 (tsgo via @typescript/native-preview for type checking)
+- oxlint 1.49.0 + oxlint-tsgolint 0.14.2
+- oxfmt 0.34.0
 - Node.js 22+

@@ -1,23 +1,21 @@
 {
   "name": "print-toys",
   "version": "1.0.0",
-  "sideEffects": false,
   "type": "module",
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
+  "sideEffects": false,
   "scripts": {
     "build": "next build",
+    "check": "pnpm lint && pnpm typecheck && pnpm format",
     "dev": "next dev --hostname 0.0.0.0",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "eslint .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --fix --type-aware .",
+    "lint:check": "oxlint --type-aware .",
     "postinstall": "prisma generate",
     "prisma:studio": "prisma studio",
     "start": "next start -p 3030",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -41,32 +39,24 @@
     "usb": "^2.16.0"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.0",
-    "@eslint/eslintrc": "^3.3.3",
-    "@eslint/js": "^9.39.2",
     "@prisma/adapter-pg": "^7.2.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
-    "@typescript-eslint/parser": "^8.52.0",
+    "@typescript/native-preview": "7.0.0-dev.20260222.1",
     "autoprefixer": "^10.4.23",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.1.0",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "globals": "^17.0.0",
+    "oxfmt": "0.34.0",
+    "oxlint": "1.49.0",
+    "oxlint-tsgolint": "0.14.2",
     "postcss": "^8.5.6",
-    "prettier": "3.7.4",
-    "prettier-plugin-tailwindcss": "0.7.2",
     "prisma": "^7.2.0",
     "tailwindcss": "^4.1.18",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
-  }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
 }

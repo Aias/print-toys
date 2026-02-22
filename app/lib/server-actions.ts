@@ -1,12 +1,10 @@
-"use server";
-
-import { after } from "next/server";
+import { after } from 'next/server';
 
 // Wrapper for fire-and-forget operations using after() API
-export async function fireAndForget<T>(
+export function fireAndForget<T>(
   operation: () => Promise<T>,
-  errorHandler?: (error: Error) => void,
-): Promise<void> {
+  errorHandler?: (error: Error) => void
+): void {
   after(async () => {
     try {
       await operation();
@@ -14,7 +12,7 @@ export async function fireAndForget<T>(
       if (errorHandler) {
         errorHandler(error as Error);
       } else {
-        console.error("[Fire-and-forget error]:", error);
+        console.error('[Fire-and-forget error]:', error);
       }
     }
   });

@@ -1,48 +1,39 @@
-"use client";
+'use client';
 
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useOptimistic,
-  useTransition,
-} from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { printLineAction } from "@/actions/print-line";
+import React, { useState, useCallback, useEffect, useOptimistic, useTransition } from 'react';
+import { printLineAction } from '@/actions/print-line';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function Typewriter() {
-  const [line, setLine] = useState("");
+  const [line, setLine] = useState('');
   const [printedSections, setPrintedSections] = useState<string[][]>([[]]);
   const [optimisticSections, addOptimisticUpdate] = useOptimistic(
     printedSections,
-    (state, update: string | { type: "cut" }) => {
-      if (typeof update === "string") {
+    (state, update: string | { type: 'cut' }) => {
+      if (typeof update === 'string') {
         // Add line to current section
         const newState = [...state];
-        newState[newState.length - 1] = [
-          ...newState[newState.length - 1],
-          update,
-        ];
+        newState[newState.length - 1] = [...newState[newState.length - 1], update];
         return newState;
       } else {
         // Add new section for cut
         return state[state.length - 1].length > 0 ? [...state, []] : state;
       }
-    },
+    }
   );
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!line.trim()) return;
 
     const formData = new FormData();
-    formData.set("action", "print");
-    formData.set("line", line);
+    formData.set('action', 'print');
+    formData.set('line', line);
 
     const lineToSubmit = line;
-    setLine("");
+    setLine('');
 
     // Server action with optimistic update
     startTransition(async () => {
@@ -50,12 +41,12 @@ export default function Typewriter() {
       addOptimisticUpdate(lineToSubmit);
 
       const result = await printLineAction(formData);
-      if (result.success && "line" in result && result.line) {
+      if (result.success && 'line' in result && result.line) {
         setPrintedSections((prev) => {
           const newSections = [...prev];
           newSections[newSections.length - 1] = [
             ...newSections[newSections.length - 1],
-            result.line,
+            result.line
           ];
           return newSections;
         });
@@ -63,16 +54,16 @@ export default function Typewriter() {
     });
   };
 
-  const handleCut = useCallback(async () => {
+  const handleCut = useCallback(() => {
     const formData = new FormData();
-    formData.set("action", "cut");
+    formData.set('action', 'cut');
 
     startTransition(async () => {
       // Optimistic update
-      addOptimisticUpdate({ type: "cut" });
+      addOptimisticUpdate({ type: 'cut' });
 
       const result = await printLineAction(formData);
-      if (result.success && "cut" in result) {
+      if (result.success && 'cut' in result) {
         setPrintedSections((prev) => {
           if (prev[prev.length - 1].length > 0) {
             return [...prev, []];
@@ -86,13 +77,13 @@ export default function Typewriter() {
   // Keyboard shortcut for cut (Cmd+Enter)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault();
         handleCut();
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleCut]);
 
   return (
@@ -109,12 +100,8 @@ export default function Typewriter() {
             className="grow"
             autoComplete="off"
           />
-          <Button
-            type="submit"
-            className="whitespace-nowrap"
-            disabled={isPending}
-          >
-            {isPending ? "Printing..." : "Print Line"}
+          <Button type="submit" className="whitespace-nowrap" disabled={isPending}>
+            {isPending ? 'Printing...' : 'Print Line'}
           </Button>
         </div>
       </form>
@@ -126,9 +113,7 @@ export default function Typewriter() {
           {sectionIndex > 0 && <hr className="my-4 border-gray-300" />}
           {section.length > 0 && (
             <div>
-              <pre className="font-mono whitespace-pre-wrap">
-                {section.join("\n")}
-              </pre>
+              <pre className="font-mono whitespace-pre-wrap">{section.join('\n')}</pre>
             </div>
           )}
         </div>

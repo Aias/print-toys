@@ -1,15 +1,15 @@
-"use server";
+'use server';
 
-import { markdown, convertUrlsToImageMarkdown } from "@/lib/markdown";
-import { htmlToEscPos } from "@/lib/html-to-esc-pos";
-import { createEncoder } from "@/lib/encoder";
-import { createPrintJob, printJobImmediately } from "@/api/requests";
-import { fireAndForget } from "@/lib/server-actions";
-import { ServerActionError } from "@/lib/errors";
+import { createPrintJob, printJobImmediately } from '@/api/requests';
+import { createEncoder } from '@/lib/encoder';
+import { ServerActionError } from '@/lib/errors';
+import { htmlToEscPos } from '@/lib/html-to-esc-pos';
+import { markdown, convertUrlsToImageMarkdown } from '@/lib/markdown';
+import { fireAndForget } from '@/lib/server-actions';
 
 export async function printMarkdownAction(markdownText: string) {
-  if (!markdownText || typeof markdownText !== "string") {
-    throw new ServerActionError("Invalid markdown content", "INVALID_INPUT");
+  if (!markdownText || typeof markdownText !== 'string') {
+    throw new ServerActionError('Invalid markdown content', 'INVALID_INPUT');
   }
 
   const html = await markdown.parse(convertUrlsToImageMarkdown(markdownText));
@@ -23,10 +23,9 @@ export async function printMarkdownAction(markdownText: string) {
   const job = await createPrintJob(escPosCommands);
 
   // Fire-and-forget print
-  await fireAndForget(
+  fireAndForget(
     () => printJobImmediately(job.jobId, escPosCommands),
-    (error) =>
-      console.error(`[Markdown print failed for job ${job.jobId}]:`, error),
+    (error) => console.error(`[Markdown print failed for job ${job.jobId}]:`, error)
   );
 
   return { success: true, jobId: job.jobId };

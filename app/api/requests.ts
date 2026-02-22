@@ -1,10 +1,10 @@
-import "dotenv/config";
-import { PrismaClient } from "../../generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { sendToPrinter } from "../lib/helpers";
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../../generated/prisma/client';
+import { sendToPrinter } from '../lib/helpers';
 
 const adapter = new PrismaPg({
-  connectionString: process.env.POSTGRES_PRISMA_URL!,
+  connectionString: process.env.POSTGRES_PRISMA_URL!
 });
 
 const prisma = new PrismaClient({ adapter });
@@ -12,11 +12,11 @@ const prisma = new PrismaClient({ adapter });
 export async function getQueuedJobs() {
   const jobs = await prisma.printJob.findMany({
     where: {
-      printed: false,
+      printed: false
     },
     orderBy: {
-      submitted: "asc",
-    },
+      submitted: 'asc'
+    }
   });
   return jobs;
 }
@@ -24,23 +24,20 @@ export async function getQueuedJobs() {
 export async function markJobAsPrinted(jobId: string) {
   await prisma.printJob.update({
     where: { jobId },
-    data: { printed: true, printedAt: new Date() },
+    data: { printed: true, printedAt: new Date() }
   });
 }
 
 export async function createPrintJob(escPosCommands: Uint8Array) {
   const job = await prisma.printJob.create({
     data: {
-      escPosCommands: new Uint8Array(escPosCommands),
-    },
+      escPosCommands: new Uint8Array(escPosCommands)
+    }
   });
   return { jobId: job.jobId, escPosCommands };
 }
 
-export async function printJobImmediately(
-  jobId: string,
-  escPosCommands: Uint8Array,
-) {
+export async function printJobImmediately(jobId: string, escPosCommands: Uint8Array) {
   try {
     await sendToPrinter(escPosCommands, false);
     await markJobAsPrinted(jobId);

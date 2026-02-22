@@ -4,7 +4,7 @@ export const LINE_WIDTH_PX = 512;
 export const QR_CODE_DEFAULTS = {
   model: 1,
   size: 6,
-  errorLevel: "m",
+  errorLevel: 'm'
 } as const;
 
 // USB Printer Configuration (Epson TM-T88VI)

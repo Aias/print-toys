@@ -1,5 +1,6 @@
-import { Canvas, loadImage, createCanvas, Image } from "canvas";
-import { LINE_WIDTH_PX } from "./constants";
+import type { Canvas, Image } from 'canvas';
+import { loadImage, createCanvas } from 'canvas';
+import { LINE_WIDTH_PX } from './constants';
 
 interface ProcessedImage {
   canvas: Canvas;
@@ -16,13 +17,13 @@ interface ImageAdjustments {
 const defaultAdjustments: ImageAdjustments = {
   contrast: 1.5,
   brightness: 10,
-  gamma: 0.5,
+  gamma: 0.5
 };
 
-async function processImage(
+function processImage(
   image: Image,
-  adjustments: ImageAdjustments = defaultAdjustments,
-): Promise<ProcessedImage> {
+  adjustments: ImageAdjustments = defaultAdjustments
+): ProcessedImage {
   let { width, height } = image;
 
   // Calculate new dimensions while maintaining aspect ratio
@@ -37,7 +38,7 @@ async function processImage(
   height = Math.floor(height / 8) * 8;
 
   const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
 
   // Draw the image
   ctx.drawImage(image, 0, 0, width, height);
@@ -55,8 +56,7 @@ async function processImage(
 
     // Apply contrast
     for (let j = 0; j < 3; j++) {
-      data[i + j] =
-        ((data[i + j] / 255 - 0.5) * adjustments.contrast + 0.5) * 255;
+      data[i + j] = ((data[i + j] / 255 - 0.5) * adjustments.contrast + 0.5) * 255;
     }
 
     // Apply brightness
@@ -78,7 +78,7 @@ async function processImage(
 
 export async function urlToCanvasImage(
   url: string,
-  adjustments?: ImageAdjustments,
+  adjustments?: ImageAdjustments
 ): Promise<ProcessedImage> {
   try {
     const response = await fetch(url);
@@ -88,20 +88,20 @@ export async function urlToCanvasImage(
     const image = await loadImage(buffer);
     return processImage(image, adjustments);
   } catch (error) {
-    console.error("Error processing image from URL:", error);
+    console.error('Error processing image from URL:', error);
     throw error;
   }
 }
 
 export async function rawDataToCanvasImage(
   rawData: Buffer,
-  adjustments?: ImageAdjustments,
+  adjustments?: ImageAdjustments
 ): Promise<ProcessedImage> {
   try {
     const image = await loadImage(rawData);
     return processImage(image, adjustments);
   } catch (error) {
-    console.error("Error processing raw image data:", error);
+    console.error('Error processing raw image data:', error);
     throw error;
   }
 }

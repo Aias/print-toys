@@ -1,7 +1,7 @@
-import { AnyNode } from "domhandler";
-import { createEncoder } from "./encoder";
-import * as cheerio from "cheerio";
-import { urlToCanvasImage, rawDataToCanvasImage } from "./image-processing";
+import * as cheerio from 'cheerio';
+import type { AnyNode } from 'domhandler';
+import { createEncoder } from './encoder';
+import { urlToCanvasImage, rawDataToCanvasImage } from './image-processing';
 
 export const commonReplacements = [
   // {
@@ -18,16 +18,16 @@ export const commonReplacements = [
   // },
   {
     search: /\n/g,
-    replace: "",
+    replace: ''
   },
   {
     search: /\r/g,
-    replace: "",
+    replace: ''
   },
   {
     search: /\s+/g,
-    replace: " ",
-  },
+    replace: ' '
+  }
 ];
 
 export async function htmlToEscPos(html: string): Promise<Uint8Array> {
@@ -37,118 +37,116 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
   async function processNode(node: AnyNode) {
     const $node = $(node);
 
-    if (node.type === "text") {
+    if (node.type === 'text') {
       let textContent = $node.text();
 
       // Only process non-empty text nodes
       if (textContent.trim().length > 0) {
         // Your existing text processing logic here
-        encoder.text(`${textContent}`);
+        encoder.text(textContent);
       }
-    } else if (node.type === "tag") {
+    } else if (node.type === 'tag') {
       const element = $(node);
       switch (node.name.toLowerCase()) {
-        case "h1":
+        case 'h1':
           encoder.bold(true).size(2);
           encoder.text(element.text().trim());
           encoder.bold(false).size(1);
           encoder.newline();
           break;
-        case "h2":
+        case 'h2':
           encoder.bold(true);
-          encoder.rule({ style: "double" });
+          encoder.rule({ style: 'double' });
           encoder.newline();
-          encoder.line(`${element.text().trim().toUpperCase()}`);
+          encoder.line(element.text().trim().toUpperCase());
           encoder.bold(false);
           break;
-        case "h3":
-        case "h4":
-        case "h5":
-        case "h6":
+        case 'h3':
+        case 'h4':
+        case 'h5':
+        case 'h6':
           encoder.newline();
           encoder.bold(true).invert(true);
-          encoder.align("center");
+          encoder.align('center');
           encoder.line(`[ ${element.text().trim()} ]`);
-          encoder.align("left");
+          encoder.align('left');
           encoder.bold(false).invert(false);
           break;
-        case "b":
-        case "strong":
+        case 'b':
+        case 'strong':
           encoder.bold(true);
           for (const child of element.contents().get()) {
             await processNode(child);
           }
           encoder.bold(false);
           break;
-        case "i":
-        case "em":
+        case 'i':
+        case 'em':
           encoder.bold(true); // Italics not supported, so using bold for emphasis.
           for (const child of element.contents().get()) {
             await processNode(child);
           }
           encoder.bold(false);
           break;
-        case "u":
+        case 'u':
           encoder.underline(true);
           for (const child of element.contents().get()) {
             await processNode(child);
           }
           encoder.underline(false);
           break;
-        case "a":
+        case 'a':
           encoder.underline(true);
-          encoder.text(`${element.text()} [${element.attr("href") || ""}]`);
+          encoder.text(`${element.text()} [${element.attr('href') || ''}]`);
           encoder.underline(false);
           break;
-        case "br":
+        case 'br':
           encoder.newline();
           break;
-        case "hr":
+        case 'hr':
           encoder.newline();
-          encoder.rule({ style: "single" });
+          encoder.rule({ style: 'single' });
           break;
-        case "img":
+        case 'img':
           try {
-            const src = element.attr("src");
+            const src = element.attr('src');
             if (src) {
               let processedImage;
-              if (src.startsWith("data:image")) {
+              if (src.startsWith('data:image')) {
                 // Handle base64 encoded images
-                const rawData = Buffer.from(src.split(",")[1], "base64");
+                const rawData = Buffer.from(src.split(',')[1], 'base64');
                 processedImage = await rawDataToCanvasImage(rawData);
               } else {
                 processedImage = await urlToCanvasImage(src);
               }
               const { canvas, width, height } = processedImage;
-              encoder.image(canvas, width, height, "floydsteinberg");
+              encoder.image(canvas, width, height, 'floydsteinberg');
             }
           } catch (error) {
-            console.error("Error processing image:", error);
+            console.error('Error processing image:', error);
             // Continue with rest of document - don't fail entire print job
-            encoder.line("[Image failed to load]");
+            encoder.line('[Image failed to load]');
           }
           break;
-        case "blockquote":
-          encoder.font("B").align("right");
+        case 'blockquote':
+          encoder.font('B').align('right');
           for (const child of element.contents().get()) {
             await processNode(child);
           }
-          encoder.font("A").align("left");
+          encoder.font('A').align('left');
           break;
-        case "pre": {
-          const text = element.text().replace(/^\n|\n$/g, "");
-          const lines = text.split("\n");
+        case 'pre': {
+          const text = element.text().replace(/^\n|\n$/g, '');
+          const lines = text.split('\n');
 
-          encoder.font("B");
+          encoder.font('B');
           // ESC 3 n: set line spacing to 20 dots (17-dot glyph + 3-dot gap)
           encoder.raw([0x1b, 0x33, 20]);
 
           for (const line of lines) {
-            const leadingWhitespace = line.match(/^[ \t]+/)?.[0] ?? "";
+            const leadingWhitespace = line.match(/^[ \t]+/)?.[0] ?? '';
             if (leadingWhitespace.length > 0) {
-              encoder.raw(
-                Array.from(leadingWhitespace, (char) => char.charCodeAt(0)),
-              );
+              encoder.raw(Array.from(leadingWhitespace, (char) => char.charCodeAt(0)));
             }
 
             const remainingText = line.slice(leadingWhitespace.length);
@@ -161,42 +159,42 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
 
           // ESC 2: reset default line spacing
           encoder.raw([0x1b, 0x32]);
-          encoder.font("A");
+          encoder.font('A');
           break;
         }
-        case "code":
-          encoder.font("B");
+        case 'code':
+          encoder.font('B');
           encoder.box(
             {
               paddingLeft: 2,
               paddingRight: 2,
-              style: "single",
-              align: "left",
+              style: 'single',
+              align: 'left'
             },
-            element.text().trim(),
+            element.text().trim()
           );
-          encoder.font("A");
+          encoder.font('A');
           break;
-        case "p":
-        case "ul":
-        case "ol":
+        case 'p':
+        case 'ul':
+        case 'ol':
           encoder.newline();
           for (const child of element.contents().get()) {
             await processNode(child);
           }
           encoder.newline();
           break;
-        case "li":
-          encoder.text("- ");
+        case 'li':
+          encoder.text('- ');
           for (const child of element.contents().get()) {
             await processNode(child);
           }
-          if (element.next("li").length) {
+          if (element.next('li').length) {
             encoder.newline();
           }
           break;
-        case "div":
-        case "span":
+        case 'div':
+        case 'span':
         default:
           for (const child of element.contents().get()) {
             await processNode(child);
@@ -206,7 +204,7 @@ export async function htmlToEscPos(html: string): Promise<Uint8Array> {
   }
 
   // Process all nodes sequentially
-  for (const node of $("body").contents().get()) {
+  for (const node of $('body').contents().get()) {
     await processNode(node);
   }
 

@@ -1,9 +1,9 @@
-declare module "@point-of-sale/receipt-printer-encoder" {
+declare module '@point-of-sale/receipt-printer-encoder' {
   interface EncoderOptions {
     printerModel?: string;
     width?: number;
     feedBeforeCut?: number;
-    imageMode?: "column" | "raster";
+    imageMode?: 'column' | 'raster';
     createCanvas?: Function;
     debug?: boolean;
     embedded?: boolean;
@@ -19,17 +19,17 @@ declare module "@point-of-sale/receipt-printer-encoder" {
     bold(enabled: boolean): this;
     underline(enabled: boolean): this;
     invert(enabled: boolean): this;
-    align(alignment: "left" | "center" | "right"): this;
+    align(alignment: 'left' | 'center' | 'right'): this;
     size(value: number): this;
     font(type: string): this;
     image(
       input: any,
       width: number,
       height: number,
-      algorithm?: "threshold" | "bayer" | "floydsteinberg" | "atkinson",
+      algorithm?: 'threshold' | 'bayer' | 'floydsteinberg' | 'atkinson'
     ): this;
-    cut(type?: "full" | "partial"): this;
-    encode(format?: "array" | "commands" | "lines"): Uint8Array;
+    cut(type?: 'full' | 'partial'): this;
+    encode(format?: 'array' | 'commands' | 'lines'): Uint8Array;
   }
 
   export default ReceiptPrinterEncoder;

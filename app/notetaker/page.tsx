@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import React, { useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { printMarkdownAction } from "@/actions/print-markdown";
-import { mdPatternLanguage, mdWithImage } from "@/test-data/markdown-examples";
+import React, { useState, useTransition } from 'react';
+import { printMarkdownAction } from '@/actions/print-markdown';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { mdPatternLanguage, mdWithImage } from '@/test-data/markdown-examples';
 
 export default function Notetaker() {
-  const [markdownText, setMarkdownText] = useState("");
+  const [markdownText, setMarkdownText] = useState('');
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{
-    type: "success" | "error";
+    type: 'success' | 'error';
     text: string;
   } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!markdownText.trim()) return;
 
@@ -24,17 +24,16 @@ export default function Notetaker() {
       try {
         const result = await printMarkdownAction(textToSubmit);
         if (result.success) {
-          setMarkdownText("");
+          setMarkdownText('');
           setMessage({
-            type: "success",
-            text: `Print job submitted successfully (Job ID: ${result.jobId})`,
+            type: 'success',
+            text: `Print job submitted successfully (Job ID: ${result.jobId})`
           });
         }
       } catch (error) {
         setMessage({
-          type: "error",
-          text:
-            error instanceof Error ? error.message : "Failed to print markdown",
+          type: 'error',
+          text: error instanceof Error ? error.message : 'Failed to print markdown'
         });
       }
     });
@@ -46,14 +45,14 @@ export default function Notetaker() {
         const result = await printMarkdownAction(testContent);
         if (result.success) {
           setMessage({
-            type: "success",
-            text: `Test print submitted successfully (Job ID: ${result.jobId})`,
+            type: 'success',
+            text: `Test print submitted successfully (Job ID: ${result.jobId})`
           });
         }
       } catch (error) {
         setMessage({
-          type: "error",
-          text: error instanceof Error ? error.message : "Failed to print test",
+          type: 'error',
+          text: error instanceof Error ? error.message : 'Failed to print test'
         });
       }
     });
@@ -73,21 +72,13 @@ export default function Notetaker() {
           className="h-64"
           disabled={isPending}
         />
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isPending || !markdownText.trim()}
-        >
-          {isPending ? "Printing..." : "Print Note"}
+        <Button type="submit" className="w-full" disabled={isPending || !markdownText.trim()}>
+          {isPending ? 'Printing...' : 'Print Note'}
         </Button>
       </form>
 
       {message && (
-        <p
-          className={`mt-4 ${
-            message.type === "success" ? "text-green-600" : "text-red-600"
-          }`}
-        >
+        <p className={`mt-4 ${message.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
           {message.text}
         </p>
       )}
