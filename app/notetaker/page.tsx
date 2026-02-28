@@ -14,7 +14,7 @@ export default function Notetaker() {
     text: string;
   } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!markdownText.trim()) return;
 

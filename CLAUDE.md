@@ -192,11 +192,11 @@ pnpm prisma:studio
 
 ## Major Stack Versions
 
-- React 19.2.3
-- Next.js 16.1.1
-- Tailwind CSS 4.1.18
-- Prisma ORM 7.2.0
+- React 19.2.4
+- Next.js 16.1.6
+- Tailwind CSS 4.2.1
+- Prisma ORM 7.4.2
 - TypeScript 5.9.3 (tsgo via @typescript/native-preview for type checking)
-- oxlint 1.49.0 + oxlint-tsgolint 0.14.2
-- oxfmt 0.34.0
+- oxlint 1.50.0 + oxlint-tsgolint 0.15.0
+- oxfmt 0.35.0
 - Node.js 22+
