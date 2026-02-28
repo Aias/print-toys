@@ -13,12 +13,23 @@ export default function PrintImage() {
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const MAX_SIZE_MB = 20;
+
   const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!fileInputRef.current?.files?.[0]) return;
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      setMessage({
+        type: 'error',
+        text: `Image too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is ${MAX_SIZE_MB} MB.`
+      });
+      return;
+    }
 
     const formData = new FormData();
-    formData.append('image', fileInputRef.current.files[0]);
+    formData.append('image', file);
 
     startTransition(async () => {
       try {
