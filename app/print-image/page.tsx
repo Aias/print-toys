@@ -15,7 +15,7 @@ export default function PrintImage() {
 
   const MAX_SIZE_MB = 20;
 
-  const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback((event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const file = fileInputRef.current?.files?.[0];
     if (!file) return;
