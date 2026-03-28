@@ -4,7 +4,7 @@ module.exports = {
       name: 'print-toys',
       script: 'pnpm',
       args: 'start',
-      cwd: './',
+      cwd: __dirname,
       env: {
         NODE_ENV: 'production',
         PORT: '3030'
