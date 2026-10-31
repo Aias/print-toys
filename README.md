@@ -19,7 +19,7 @@ The following setup assumes you have an Epson TM-T88VI printer connected via USB
 
 ### Prerequisites
 
-- **Node.js >=22.0.0** (required for Next.js 16)
+- **Node.js >=26.0.0**
 - **PostgreSQL** running locally
 - **pnpm** package manager (v10.24.0+)
 - **Epson TM-T88VI** (or compatible) connected via USB

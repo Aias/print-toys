@@ -10,7 +10,6 @@ export default defineConfig({
     ],
     '@typescript-eslint/consistent-type-imports': 'warn',
     '@typescript-eslint/ban-ts-comment': 'warn',
-    'import/order': 'warn',
 
     // Type-aware rules
     'typescript/await-thenable': 'warn',
