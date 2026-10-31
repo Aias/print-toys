@@ -32,7 +32,7 @@ pm2 restart print-toys          # Restart the application
 
 # Code Quality
 pnpm check                  # Run all checks (lint + typecheck + format)
-pnpm typecheck              # Run type checking (tsgo --noEmit)
+pnpm typecheck              # Run type checking (tsc --noEmit)
 pnpm lint                   # Run oxlint with auto-fix and type-aware rules
 pnpm lint:check             # Run oxlint without auto-fix (CI mode)
 pnpm format                 # Format code with oxfmt (Tailwind class sorting + import sorting)
@@ -150,7 +150,7 @@ pnpm prisma:studio
 
 ## Development Notes
 
-- **Node.js >=22.0.0 required** (Next.js 16 requirement)
+- **Node.js >=26.0.0 required**
 - Uses `pnpm` as package manager (specified in `packageManager` field)
   - `pnpm-workspace.yaml` configures build dependencies (`onlyBuiltDependencies: [msw]`)
 - **Dev server**: Uses `--hostname 0.0.0.0` flag (accessible on local network, port 3000)
@@ -166,9 +166,9 @@ pnpm prisma:studio
   - Configured via `serverExternalPackages` in `next.config.ts`
 - **Character Encoding**: Printers use legacy codepages (CP437, Windows-1252), not full Unicode. Stick to ASCII for reliable output.
 - **Code Quality Tools**:
-  - **oxfmt 0.34.0**: Code formatting with Tailwind class sorting and import sorting (config: `.oxfmtrc.json`)
-  - **oxlint 1.49.0**: Linting with type-aware rules via `oxlint-tsgolint` (config: `oxlint.config.ts`)
-  - **tsgo** (via `@typescript/native-preview`): Native TypeScript compiler for type checking
+  - **oxfmt 0.75.0**: Code formatting with Tailwind class sorting and import sorting (config: `.oxfmtrc.json`)
+  - **oxlint 1.90.0**: Linting with type-aware rules via `oxlint-tsgolint` (config: `oxlint.config.ts`)
+  - **TypeScript 7** (`tsc`): Native TypeScript compiler for type checking
   - `pnpm check` runs all three: lint, typecheck, format
 - **React 19**: Uses new ref forwarding (no `forwardRef` needed)
 - **Next.js 16**: App Router with file-based routing
@@ -177,7 +177,6 @@ pnpm prisma:studio
   - Error Boundaries via `error.tsx` files
   - Metadata via exports in `layout.tsx` files
   - Uses `after()` API from `next/server` for fire-and-forget operations
-  - Uses tsgo for type checking; tsc available as fallback
 - **Tailwind CSS 4**: Uses `@import "tailwindcss"` syntax and CSS-based `@theme` configuration
   - **PostCSS**: Uses `@tailwindcss/postcss` plugin for CSS package imports
   - **shadcn/ui integration**: Imports `shadcn/tailwind.css` and `tw-animate-css` for component styling
@@ -185,18 +184,17 @@ pnpm prisma:studio
 - **UI Components (shadcn/ui)**:
   - **Base UI primitives**: Uses `@base-ui/react` instead of Radix UI (headless, unstyled primitives)
   - **Style preset**: "base-lyra" style in `components.json` with RSC support enabled
-  - **Icon library**: Lucide icons (`lucide` package)
   - Components in `app/components/ui/` follow shadcn conventions with data attributes for styling
   - No `forwardRef` needed (React 19), no `asChild` prop on Button
 - **Prisma 7**: ESM-only, adapter pattern for database connections, generated client in `./generated/prisma`
 
 ## Major Stack Versions
 
-- React 19.2.4
-- Next.js 16.1.6
-- Tailwind CSS 4.2.1
-- Prisma ORM 7.4.2
-- TypeScript 5.9.3 (tsgo via @typescript/native-preview for type checking)
-- oxlint 1.50.0 + oxlint-tsgolint 0.15.0
-- oxfmt 0.35.0
-- Node.js 22+
+- React 19.3.1
+- Next.js 16.4.3
+- Tailwind CSS 4.3.3
+- Prisma ORM 7.10.1
+- TypeScript 7.0.2
+- oxlint 1.90.0 + oxlint-tsgolint 7.0.2005
+- oxfmt 0.75.0
+- Node.js 26+
